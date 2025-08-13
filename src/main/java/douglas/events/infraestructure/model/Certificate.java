@@ -1,5 +1,6 @@
 package douglas.events.infraestructure.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -22,6 +23,7 @@ public class Certificate {
 
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "enrollment_id", nullable = false)
+    @JsonBackReference
     private Enrollment enrollment;
 
     @Column(unique = true)

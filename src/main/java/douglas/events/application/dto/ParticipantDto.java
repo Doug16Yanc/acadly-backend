@@ -3,21 +3,17 @@ package douglas.events.application.dto;
 import douglas.events.infraestructure.model.Participant;
 import douglas.events.infraestructure.model.enums.ParticipantType;
 
-import java.util.ArrayList;
-
 public record ParticipantDto(
         String name,
         String email,
         ParticipantType participantType
 ) {
     public static Participant toEntity(ParticipantDto participantDto) {
-        return new Participant(
-                null,
-                participantDto.name,
-                participantDto.email,
-                participantDto.participantType,
-                new ArrayList<>()
-        );
+        var participant = new Participant();
+        participant.setName(participantDto.name());
+        participant.setEmail(participantDto.email());
+        participant.setParticipantType(participantDto.participantType());
+        return participant;
     }
 
     public static ParticipantDto fromEntity(Participant participant) {

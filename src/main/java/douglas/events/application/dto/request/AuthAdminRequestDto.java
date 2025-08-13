@@ -1,4 +1,4 @@
-package douglas.events.application.dto;
+package douglas.events.application.dto.request;
 
 public record AuthAdminRequestDto(
         String username,

@@ -1,8 +1,7 @@
 package douglas.events.infraestructure.repository;
 
-import org.springframework.data.jpa.repository.JpaRepository;
-
 import douglas.events.infraestructure.model.Classification;
+import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
 

@@ -1,6 +1,5 @@
 package douglas.events.business.service;
 
-import douglas.events.application.dto.AuthAdminRequestDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;

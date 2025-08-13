@@ -35,8 +35,8 @@ public class SecurityConfig {
                 .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(a -> a
                         .requestMatchers("/auth/login", "/auth/register", "/event/get-all-events", "event/get-event-active",
-                                "/activity/get-all-activities-by-event", "classification/find-by-type/{type}",
-                                "/participant/create-participation/", "/v3/api-docs/**",
+                                "/activity/get-all-activities-by-event", "classification/find-by-type/{type}", "/enrollment/validate",
+                                "/participant/create-participation/**", "/v3/api-docs/**",
                                 "/swagger-ui/**").permitAll()
                         .anyRequest().authenticated()
                 )

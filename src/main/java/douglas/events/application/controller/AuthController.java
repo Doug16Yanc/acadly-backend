@@ -1,7 +1,7 @@
 package douglas.events.application.controller;
 
-import douglas.events.application.dto.AuthAdminRequestDto;
-import douglas.events.application.dto.AuthAdminResponseDto;
+import douglas.events.application.dto.request.AuthAdminRequestDto;
+import douglas.events.application.dto.request.AuthAdminResponseDto;
 import douglas.events.application.dto.CreateAdminDto;
 import douglas.events.business.service.AuthService;
 import douglas.events.infraestructure.config.security.TokenService;
