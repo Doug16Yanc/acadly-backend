@@ -1,6 +1,7 @@
 package douglas.events.application.controller;
 
 import douglas.events.application.dto.ParticipantDto;
+import douglas.events.application.dto.response.ParticipantResponseDTO;
 import douglas.events.business.service.ParticipantService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -14,9 +15,16 @@ public class ParticipantController {
     private final ParticipantService participantService;
 
     @PostMapping("/create-participation/{eventId}")
-    public ResponseEntity<String> createParticipation(@PathVariable Long eventId, @RequestBody ParticipantDto participantDto) {
-        var participant = participantService.createParticipant(eventId, participantDto);
+    public ResponseEntity<ParticipantResponseDTO> createParticipation(@PathVariable Long eventId, @RequestBody ParticipantDto participantDto) {
+        var participant = participantService.createParticipant(eventId, ParticipantDto.toEntity(participantDto));
 
-        return ResponseEntity.ok().body("Participação confirmada para " + participant.getName());
+        return ResponseEntity.ok().body(
+                new ParticipantResponseDTO(
+                        participant.getId(),
+                        participant.getName(),
+                        participant.getEmail(),
+                        participant.getParticipantType()
+                )
+        );
     }
 }
