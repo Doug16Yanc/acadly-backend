@@ -1,6 +1,9 @@
 package douglas.events.infraestructure.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import douglas.events.infraestructure.model.enums.EnrollmentStatus;
+import douglas.events.infraestructure.model.enums.WasPresent;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -8,6 +11,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 
 @Entity
@@ -18,24 +22,44 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 public class Enrollment {
-        @Id
-        @GeneratedValue(strategy = GenerationType.IDENTITY)
-        private Long id;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
-        @ManyToOne(fetch = FetchType.LAZY)
-        @JoinColumn(name = "event_id", nullable = false)
-        private Event event;
+    @Version
+    private Long version;
 
-        @ManyToOne(fetch = FetchType.LAZY)
-        @JoinColumn(name = "participant_id", nullable = false)
-        private Participant participant;
+    @Column(unique = true)
+    private String numericCode;
 
-        private LocalDateTime enrollmentDate;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "event_id", nullable = false)
+    @JsonBackReference
+    private Event event;
 
-        @Enumerated(EnumType.STRING)
-        private EnrollmentStatus status;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "participant_id", nullable = false)
+    private Participant participant;
 
-        @OneToOne(mappedBy = "enrollment", cascade = CascadeType.ALL)
-        private Certificate certificate;
+    private LocalDateTime enrollmentDate;
+
+    @Enumerated(EnumType.STRING)
+    private EnrollmentStatus status;
+
+    @Enumerated(EnumType.STRING)
+    private WasPresent wasPresent = WasPresent.PENDING;
+
+    @OneToOne(mappedBy = "enrollment", cascade = CascadeType.ALL)
+    @JsonManagedReference
+    private Certificate certificate;
+
+    @Column(nullable = false, unique = true)
+    private String validationToken;
+
+    @PrePersist
+    public void generateValidationToken() {
+        this.validationToken = UUID.randomUUID().toString();
+        this.enrollmentDate = LocalDateTime.now();
+    }
 
 }

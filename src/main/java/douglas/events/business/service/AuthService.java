@@ -1,7 +1,6 @@
 package douglas.events.business.service;
 
-import douglas.events.application.dto.AuthAdminRequestDto;
-import douglas.events.application.dto.AuthAdminResponseDto;
+import douglas.events.application.dto.request.AuthAdminResponseDto;
 import douglas.events.application.dto.CreateAdminDto;
 import douglas.events.infraestructure.config.security.TokenService;
 import douglas.events.infraestructure.exception.authentication.AuthAdminNotMatchesException;

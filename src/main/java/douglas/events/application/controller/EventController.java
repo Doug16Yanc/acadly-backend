@@ -1,13 +1,14 @@
 package douglas.events.application.controller;
 
 import douglas.events.application.dto.EventDto;
+import douglas.events.application.dto.response.ApiResponse;
+import douglas.events.application.dto.response.EventResponseDTO;
 import douglas.events.business.service.EventService;
-import douglas.events.infraestructure.model.Event;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
+import static douglas.events.application.util.UtilApi.getApiResponseEntity;
 
 @RestController
 @RequestMapping("/event")
@@ -17,26 +18,63 @@ public class EventController {
     private final EventService eventService;
 
     @PostMapping("/create-event")
-    public ResponseEntity<String> createEvent(@RequestBody EventDto eventDto) {
-        var newEvent = eventService.createEvent(eventDto);
+    public ResponseEntity<EventResponseDTO> createEvent(@RequestBody EventDto eventDto) {
+        var newEvent = eventService.createEvent(EventDto.toEntity(eventDto));
 
-        return ResponseEntity.ok("Evento criado com sucesso" + newEvent.getName());
+        return ResponseEntity.ok(
+                new EventResponseDTO(
+                        newEvent.getId(),
+                        newEvent.getName(),
+                        newEvent.getDescription(),
+                        newEvent.getInitialDate(),
+                        newEvent.getFinalDate(),
+                        newEvent.getLocal(),
+                        newEvent.getStatus(),
+                        newEvent.isActive()
+                )
+        );
     }
 
     @GetMapping("/get-event/{eventId}")
-    public ResponseEntity<EventDto> getEvent(@PathVariable Long eventId) {
+    public ResponseEntity<EventResponseDTO> getEvent(@PathVariable Long eventId) {
         var eventFound = eventService.getEventById(eventId);
-        return ResponseEntity.ok(eventFound);
+        return ResponseEntity.ok(
+                new EventResponseDTO(
+                        eventFound.getId(),
+                        eventFound.getName(),
+                        eventFound.getDescription(),
+                        eventFound.getInitialDate(),
+                        eventFound.getFinalDate(),
+                        eventFound.getLocal(),
+                        eventFound.getStatus(),
+                        eventFound.isActive()
+                )
+        );
     }
 
     @GetMapping("/get-event-active")
-    public ResponseEntity<EventDto> getEventActive() {
+    public ResponseEntity<EventResponseDTO> getEventActive() {
         var eventFound = eventService.getActiveEvent();
-        return ResponseEntity.ok(eventFound);
+        return ResponseEntity.ok(
+                new EventResponseDTO(
+                        eventFound.getId(),
+                        eventFound.getName(),
+                        eventFound.getDescription(),
+                        eventFound.getInitialDate(),
+                        eventFound.getFinalDate(),
+                        eventFound.getLocal(),
+                        eventFound.getStatus(),
+                        eventFound.isActive()
+                )
+        );
     }
 
     @GetMapping("/get-all-events")
-    public ResponseEntity<List<EventDto>> getAllEvents() {
-        return ResponseEntity.ok(eventService.getAllEvents());
+    public ResponseEntity<ApiResponse<EventResponseDTO>> getAllEvents(
+            @RequestParam(name = "page", defaultValue = "0") Integer page,
+            @RequestParam(name = "pageSize", defaultValue = "10") Integer pageSize
+    ) {
+        var events = eventService.getAllEvents(page, pageSize);
+        return getApiResponseEntity(events, EventResponseDTO::fromEntity);
     }
 }

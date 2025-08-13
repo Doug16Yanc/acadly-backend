@@ -2,8 +2,8 @@ package douglas.events.infraestructure.exception.global;
 
 import douglas.events.infraestructure.exception.local.AlreadyActiveEventException;
 import douglas.events.infraestructure.exception.local.DateConflictException;
-import douglas.events.infraestructure.exception.local.NotFoundException;
 import douglas.events.infraestructure.exception.local.ListEmptyException;
+import douglas.events.infraestructure.exception.local.NotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;

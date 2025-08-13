@@ -1,5 +1,7 @@
 package douglas.events.infraestructure.model;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+import douglas.events.infraestructure.model.enums.EventStatus;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -7,7 +9,6 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -32,12 +33,16 @@ public class Event {
     private LocalDate finalDate;
 
     private String local;
+    @Enumerated(EnumType.STRING)
+    private EventStatus status = EventStatus.UPCOMING;
 
     private boolean isActive;
 
     @OneToMany(mappedBy = "event", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference
     private List<Activity> activities = new ArrayList<>();
 
     @OneToMany(mappedBy = "event")
+    @JsonManagedReference
     private List<Enrollment> enrollments = new ArrayList<>();
 }
