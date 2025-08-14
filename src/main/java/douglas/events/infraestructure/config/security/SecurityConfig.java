@@ -37,7 +37,7 @@ public class SecurityConfig {
                         .requestMatchers("/auth/login", "/auth/register", "/event/get-all-events", "event/get-event-active",
                                 "/activity/get-all-activities-by-event", "classification/find-by-type/{type}", "/enrollment/validate",
                                 "/classification/types", "/participant/create-participation/**", "/v3/api-docs/**",
-                                "/swagger-ui/**").permitAll()
+                                "/swagger-ui/**", "enrollment/validate/**").permitAll()
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(securityFilter, UsernamePasswordAuthenticationFilter.class)
