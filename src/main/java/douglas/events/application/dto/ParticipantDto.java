@@ -1,6 +1,6 @@
 package douglas.events.application.dto;
 
-import douglas.events.infraestructure.model.Participant;
+import douglas.events.infraestructure.model.Person;
 import douglas.events.infraestructure.model.enums.ParticipantType;
 
 public record ParticipantDto(
@@ -8,15 +8,15 @@ public record ParticipantDto(
         String email,
         ParticipantType participantType
 ) {
-    public static Participant toEntity(ParticipantDto participantDto) {
-        var participant = new Participant();
+    public static Person toEntity(ParticipantDto participantDto) {
+        var participant = new Person();
         participant.setName(participantDto.name());
         participant.setEmail(participantDto.email());
         participant.setParticipantType(participantDto.participantType());
         return participant;
     }
 
-    public static ParticipantDto fromEntity(Participant participant) {
+    public static ParticipantDto fromEntity(Person participant) {
         return new ParticipantDto(
                 participant.getName(),
                 participant.getEmail(),
