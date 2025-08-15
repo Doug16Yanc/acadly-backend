@@ -1,30 +1,29 @@
 package douglas.events.business.service;
 
+import douglas.events.infraestructure.repository.PersonRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
+import java.util.ArrayList;
 
 @Service
 @RequiredArgsConstructor
-public class AdminUserDetailsService implements UserDetailsService {
+public class CustomUserDetailService implements UserDetailsService {
 
-    private final AuthService authService;
-    private final BCryptPasswordEncoder bCryptPasswordEncoder;
+    private final PersonRepository personRepository;
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        var admin = authService.findAdminByUsername(username);
+        var person = this.personRepository.findByEmail(username);
+
         return new User(
-                admin.getUsername(),
-                admin.getPassword(),
-                List.of(new SimpleGrantedAuthority("ROLE_ADMIN"))
+                person.getEmail(),
+                person.getPassword(),
+                new ArrayList<>()
         );
     }
 }
