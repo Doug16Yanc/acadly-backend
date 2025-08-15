@@ -37,7 +37,7 @@ public class AuthService {
         admin.setRole(Role.ADMIN);
 
         var savedAdmin = personRepository.save(admin);
-        tokenService.generateToken(savedAdmin.getUsername());
+        tokenService.generateToken(savedAdmin);
 
         return savedAdmin;
     }
@@ -58,7 +58,7 @@ public class AuthService {
             throw new AuthNotMatchesException();
         }
 
-        var token = tokenService.generateToken(admin.getUsername());
+        var token = tokenService.generateToken(admin);
         return new AuthAdminResponseDto(token, admin.getId(), admin.getUsername());
     }
 
@@ -78,7 +78,7 @@ public class AuthService {
             throw new AuthNotMatchesException();
         }
 
-        var token = tokenService.generateToken(employee.getUsername());
+        var token = tokenService.generateToken(employee);
         return new AuthEmployeeResponseDto(token, employee.getId(), employee.getUsername());
     }
 

@@ -25,7 +25,7 @@ public class TokenService {
     @Value("${ISSUER}")
     private String issuer;
 
-    public String generateToken(String email, Person person) {
+    public String generateToken(Person person) {
         try {
             Algorithm algorithm = Algorithm.HMAC256(privateKey);
             Instant now = Instant.now();
@@ -35,7 +35,7 @@ public class TokenService {
                     .withClaim("name", person.getName())
                     .withClaim("role", person.getRole().name())
                     .withIssuer(issuer)
-                    .withSubject(email)
+                    .withSubject(person.getEmail())
                     .withIssuedAt(Date.from(now))
                     .withExpiresAt(Date.from(now.plusSeconds(expirationSeconds)))
                     .sign(algorithm);
