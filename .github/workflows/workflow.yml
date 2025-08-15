@@ -46,6 +46,3 @@ jobs:
           docker login -u ${{ secrets.DOCKERHUB_USERNAME }} -p ${{ secrets.DOCKERHUB_TOKEN }}
           docker push $IMAGE_NAME:${{ github.sha }}
           docker push $IMAGE_NAME:latest
-          
-          
-          dckr_pat_VtGGj0ASCq8g0GuLN88BjmbANyI
