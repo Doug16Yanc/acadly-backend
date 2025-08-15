@@ -4,10 +4,12 @@ package douglas.events.infraestructure.config;
 import jakarta.annotation.PostConstruct;
 import io.github.cdimascio.dotenv.Dotenv;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
 
 import java.util.Objects;
 
 @Configuration
+@Profile("!test")
 public class DotenvConfig {
 
     @PostConstruct
