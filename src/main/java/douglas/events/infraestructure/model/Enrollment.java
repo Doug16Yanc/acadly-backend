@@ -39,7 +39,7 @@ public class Enrollment {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "participant_id", nullable = false)
-    private Participant participant;
+    private Person participant;
 
     private LocalDateTime enrollmentDate;
 

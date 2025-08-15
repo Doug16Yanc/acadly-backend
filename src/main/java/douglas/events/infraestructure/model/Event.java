@@ -33,6 +33,7 @@ public class Event {
     private LocalDate finalDate;
 
     private String local;
+
     @Enumerated(EnumType.STRING)
     private EventStatus status = EventStatus.UPCOMING;
 

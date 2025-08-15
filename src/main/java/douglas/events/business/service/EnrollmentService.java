@@ -7,7 +7,7 @@ import douglas.events.infraestructure.model.Enrollment;
 import douglas.events.infraestructure.model.enums.EnrollmentStatus;
 import douglas.events.infraestructure.model.enums.WasPresent;
 import douglas.events.infraestructure.repository.EnrollmentRepository;
-import douglas.events.infraestructure.repository.ParticipantRepository;
+import douglas.events.infraestructure.repository.PersonRepository;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -23,11 +23,11 @@ import java.time.LocalDateTime;
 public class EnrollmentService {
     private final EnrollmentRepository enrollmentRepository;
     private final EventService eventService;
-    private final ParticipantRepository participantRepository;
+    private final PersonRepository personRepository;
 
     public Enrollment createEnrollment(Long eventId, Long participantId) {
         var existentEvent = eventService.getEventEntityById(eventId);
-        var participant = participantRepository.findById(participantId)
+        var participant = personRepository.findById(participantId)
                 .orElseThrow(() -> new ParticipantNotFoundException("Participante não encontrado com o ID: " + participantId));
 
         var enrollment = new Enrollment();

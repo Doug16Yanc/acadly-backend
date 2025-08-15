@@ -5,6 +5,7 @@ import douglas.events.infraestructure.exception.authentication.CustomAuthenticat
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -19,25 +20,28 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @RequiredArgsConstructor
 public class SecurityConfig {
 
-    private final TokenService tokenService;
     private final CustomAccessDeniedHandler accessDeniedHandler;
     private final CustomAuthenticationEntryPoint authenticationEntryPoint;
+    private final SecurityFilter securityFilter;
+
 
     @Bean
-    public SecurityFilter securityFilter(UserDetailsService userDetailsService) {
-        return new SecurityFilter(tokenService, userDetailsService);
-    }
-
-    @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http, SecurityFilter securityFilter) throws Exception {
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(a -> a
                         .requestMatchers("/auth/login", "/auth/register", "/event/get-all-events", "event/get-event-active",
-                                "/activity/get-all-activities-by-event", "classification/find-by-type/{type}", "/enrollment/validate",
+                                "/activity/get-all-activities-by-event", "classification/find-by-type/{type}",
                                 "/classification/types", "/participant/create-participation/**", "/v3/api-docs/**",
-                                "/swagger-ui/**", "enrollment/validate/**").permitAll()
+                                "/swagger-ui/**").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/event/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.PUT, "/event/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.DELETE, "/event/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.POST, "/employee/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.GET, "/employee/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.PUT, "/employee/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.DELETE, "/employee/**").hasRole("ADMIN")
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(securityFilter, UsernamePasswordAuthenticationFilter.class)
