@@ -2,6 +2,7 @@ package douglas.events.business.service;
 
 import douglas.events.infraestructure.exception.local.AlreadyActiveEventException;
 import douglas.events.infraestructure.exception.local.DateConflictException;
+import douglas.events.infraestructure.exception.local.EventNotFoundException;
 import douglas.events.infraestructure.exception.local.NotFoundException;
 import douglas.events.infraestructure.model.Event;
 import douglas.events.infraestructure.repository.EventRepository;
@@ -57,5 +58,28 @@ public class EventService {
     public Event getEventEntityById(Long eventId) {
         return eventRepository.findById(eventId)
                 .orElseThrow(() -> new NotFoundException("Evento não encontrado"));
+    }
+
+    public Event updateEvent(Long id, Event event) {
+        var existentEvent = getEventEntityById(id);
+        if (existentEvent == null) {
+            throw new EventNotFoundException("Evento não encontrado com o ID: " + id);
+        }
+        if (event.getName() != null) {
+            existentEvent.setName(event.getName());
+        }
+        if (event.getDescription() != null) {
+            existentEvent.setDescription(event.getDescription());
+        }
+        if (event.getLocal() != null) {
+            existentEvent.setLocal(event.getLocal());
+        }
+        if (event.getInitialDate() != null) {
+            existentEvent.setInitialDate(event.getInitialDate());
+        }
+        if (event.getFinalDate() != null) {
+            existentEvent.setFinalDate(event.getFinalDate());
+        }
+        return eventRepository.save(existentEvent);
     }
 }
