@@ -4,6 +4,7 @@ import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.JWTCreationException;
 import com.auth0.jwt.exceptions.JWTVerificationException;
+import douglas.events.infraestructure.model.Person;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,13 +25,15 @@ public class TokenService {
     @Value("${ISSUER}")
     private String issuer;
 
-    public String generateToken(String email) {
+    public String generateToken(String email, Person person) {
         try {
             Algorithm algorithm = Algorithm.HMAC256(privateKey);
             Instant now = Instant.now();
 
             long expirationSeconds = 3600L;
             return JWT.create()
+                    .withClaim("name", person.getName())
+                    .withClaim("role", person.getRole().name())
                     .withIssuer(issuer)
                     .withSubject(email)
                     .withIssuedAt(Date.from(now))
