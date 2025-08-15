@@ -1,7 +1,6 @@
 package douglas.events.infraestructure.exception.global;
 
 import douglas.events.infraestructure.exception.local.*;
-import kotlin.io.encoding.ExperimentalEncodingApi;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
