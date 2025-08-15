@@ -77,4 +77,11 @@ public class EventController {
         var events = eventService.getAllEvents(page, pageSize);
         return getApiResponseEntity(events, EventResponseDTO::fromEntity);
     }
+
+    @PutMapping("/update/{id}")
+    public ResponseEntity<EventResponseDTO> updateEvent(@PathVariable Long id, @RequestBody EventDto eventDto) {
+        var event = eventService.updateEvent(id, EventDto.toEntity(eventDto));
+
+        return ResponseEntity.ok(EventResponseDTO.fromEntity(event));
+    }
 }
