@@ -1,6 +1,5 @@
 package douglas.events.business.service;
 
-import douglas.events.infraestructure.exception.local.AlreadyActiveEventException;
 import douglas.events.infraestructure.exception.local.DateConflictException;
 import douglas.events.infraestructure.exception.local.EventNotFoundException;
 import douglas.events.infraestructure.exception.local.NotFoundException;
@@ -10,6 +9,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
+
+import java.time.format.DateTimeFormatter;
+import java.util.Comparator;
 
 @Service
 @RequiredArgsConstructor
@@ -22,13 +24,20 @@ public class EventService {
             throw new DateConflictException("A data de fim do evento não pode ser antes da sua data de início.");
         }
 
-        var events = getAllEvents(0, Integer.MAX_VALUE).getContent();
-        var hasActiveEvent = events.stream()
-                .filter(Event::isActive)
-                .toList();
+        if (event.isActive()) {
+            var lastActiveEvent = getAllEvents(0, Integer.MAX_VALUE).getContent().stream()
+                    .filter(Event::isActive)
+                    .max(Comparator.comparing(Event::getFinalDate));
 
-        if (!(hasActiveEvent.isEmpty()) && event.isActive()) {
-                throw new AlreadyActiveEventException("Só pode ter um evento ativo por vez.");
+            if (lastActiveEvent.isPresent()) {
+                Event activeEvent = lastActiveEvent.get();
+
+                if (!event.getInitialDate().isAfter(activeEvent.getFinalDate())) {
+                    throw new DateConflictException(
+                            "A data de início do novo evento deve ser posterior à data de término do evento ativo atual (" + activeEvent.getFinalDate().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")) + ")."
+                    );
+                }
+            }
         }
 
         return eventRepository.save(event);
