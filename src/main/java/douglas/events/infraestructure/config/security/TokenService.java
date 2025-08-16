@@ -55,7 +55,7 @@ public class TokenService {
                     .verify(token)
                     .getSubject();
         } catch (JWTVerificationException e) {
-            logger.warn("No token found in request");
+            logger.warn("{}", e.getMessage());
             return null;
         }
     }

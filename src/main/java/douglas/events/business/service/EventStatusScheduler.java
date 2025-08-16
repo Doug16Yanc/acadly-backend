@@ -61,6 +61,13 @@ public class EventStatusScheduler {
             return;
         }
 
+        var events = eventRepository.findAll();
+        var existingActiveEvent = events.stream().filter(Event::isActive).findFirst();
+        if (existingActiveEvent.isPresent()) {
+            log.info("Já existe um evento ativo, não foi possível iniciar evento: {}", existingActiveEvent.get().getName());
+            return;
+        }
+
         for (Event event : finishedEvents) {
             log.info("Processando ausências para o evento: {}", event.getName());
 
