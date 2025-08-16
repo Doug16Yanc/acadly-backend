@@ -4,6 +4,7 @@ import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.JWTCreationException;
 import com.auth0.jwt.exceptions.JWTVerificationException;
+import douglas.events.infraestructure.exception.local.InvalidTokenException;
 import douglas.events.infraestructure.model.Person;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
@@ -30,7 +31,7 @@ public class TokenService {
             Algorithm algorithm = Algorithm.HMAC256(privateKey);
             Instant now = Instant.now();
 
-            long expirationSeconds = 3600L;
+            long expirationSeconds = 86400L; // 1 day
             return JWT.create()
                     .withClaim("name", person.getName())
                     .withClaim("role", person.getRole().name())
@@ -41,7 +42,7 @@ public class TokenService {
                     .sign(algorithm);
         } catch (JWTCreationException e) {
             logger.error("Error while creating JWT token: {}", e.getMessage());
-            throw new RuntimeException("Error while creating JWT token", e);
+            throw new InvalidTokenException("Error while creating JWT token: " + e);
         }
     }
 
@@ -56,7 +57,7 @@ public class TokenService {
                     .getSubject();
         } catch (JWTVerificationException e) {
             logger.warn("{}", e.getMessage());
-            return null;
+            throw new InvalidTokenException("Error while validating JWT token: " + e);
         }
     }
 }
