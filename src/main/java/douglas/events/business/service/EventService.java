@@ -52,7 +52,13 @@ public class EventService {
         return eventRepository.save(event);
     }
 
-    public Page<Event> getAllEvents(Integer page, Integer pageSize) {
+    public Page<Event> getAllEvents(String query, Integer page, Integer pageSize) {
+        var pageable = PageRequest.of(page, pageSize);
+
+        if (query != null && !query.trim().isEmpty()) {
+            return eventRepository.findByNameContainingIgnoreCase(query, pageable);
+        }
+
         return eventRepository.findAll(PageRequest.of(page, pageSize));
     }
 
@@ -60,6 +66,10 @@ public class EventService {
         return eventRepository.findById(id).orElseThrow(() ->
                 new NotFoundException("Evento não encontrado.")
         );
+    }
+
+    public boolean existsActive() {
+        return eventRepository.existsByIsActiveTrue();
     }
 
     public Event getActiveEvent() {
@@ -98,6 +108,9 @@ public class EventService {
         }
         if (event.getFinalDate() != null) {
             existentEvent.setFinalDate(event.getFinalDate());
+        }
+        if (event.isActive() != existentEvent.isActive()) {
+            existentEvent.setActive(event.isActive());
         }
         return eventRepository.save(existentEvent);
     }
