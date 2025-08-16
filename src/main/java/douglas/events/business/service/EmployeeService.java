@@ -71,6 +71,9 @@ public class EmployeeService {
     @Transactional
     public void deleteEmployee(Long employeeId) {
         var employeeToDelete = getEmployeeById(employeeId);
+        if (employeeToDelete == null) {
+            throw new EmployeeNotFoundException("Funcionário não encontrado com o ID: " + employeeId);
+        }
         personRepository.delete(employeeToDelete);
     }
 

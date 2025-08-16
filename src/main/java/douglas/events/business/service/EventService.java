@@ -6,6 +6,7 @@ import douglas.events.infraestructure.exception.local.EventNotFoundException;
 import douglas.events.infraestructure.exception.local.NotFoundException;
 import douglas.events.infraestructure.model.Event;
 import douglas.events.infraestructure.repository.EventRepository;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -19,6 +20,7 @@ public class EventService {
 
     private final EventRepository eventRepository;
 
+    @Transactional
     public Event createEvent(Event event) {
         if (event.getFinalDate().isBefore(event.getInitialDate())) {
             throw new DateConflictException("A data de fim do evento não pode ser antes da sua data de início.");
@@ -76,6 +78,7 @@ public class EventService {
                 .orElseThrow(() -> new NotFoundException("Evento não encontrado"));
     }
 
+    @Transactional
     public Event updateEvent(Long id, Event event) {
         var existentEvent = getEventEntityById(id);
         if (existentEvent == null) {
@@ -97,5 +100,14 @@ public class EventService {
             existentEvent.setFinalDate(event.getFinalDate());
         }
         return eventRepository.save(existentEvent);
+    }
+
+    @Transactional
+    public void deleteEvent(Long id) {
+        var existentEvent = getEventEntityById(id);
+        if (existentEvent == null) {
+            throw new EventNotFoundException("Evento não encontrado com o ID: " + id);
+        }
+        eventRepository.deleteById(id);
     }
 }
