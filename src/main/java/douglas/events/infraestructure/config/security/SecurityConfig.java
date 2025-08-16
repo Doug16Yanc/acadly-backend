@@ -31,13 +31,15 @@ public class SecurityConfig {
                 .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(a -> a
                         .requestMatchers("/","/auth/login", "/auth/register", "/event/get-all-events", "event/get-event-active",
-                                "/activity/get-all-activities-by-event", "classification/find-by-type/{type}",
-                                "/classification/types", "/participant/create-participation/**", "/v3/api-docs/**",
-                                "/swagger-ui/**").permitAll()
+                                "classification/find-by-type/{type}", "/classification/types", "/participant/create-participation/**",
+                                "/v3/api-docs/**", "/swagger-ui/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/activity/**").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/activity/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.POST, "/event/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.PUT, "/event/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.DELETE, "/event/**").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.POST, "/employee/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.POST, "/employee/register").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.POST, "/employee/auth").hasAnyRole("ADMIN", "EMPLOYEE")
                         .requestMatchers(HttpMethod.GET, "/employee/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.PUT, "/employee/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.DELETE, "/employee/**").hasRole("ADMIN")
