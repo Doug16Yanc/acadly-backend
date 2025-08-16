@@ -9,12 +9,12 @@ import douglas.events.infraestructure.repository.EnrollmentRepository;
 import douglas.events.infraestructure.repository.EventRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
-import java.util.List;
 
 @Component
 @RequiredArgsConstructor
@@ -57,14 +57,7 @@ public class EventStatusScheduler {
         var finishedEvents = eventRepository.findByStatusAndFinalDateLessThanEqual(EventStatus.STARTED, LocalDate.now());
 
         if (finishedEvents.isEmpty()) {
-            log.info("Nenhum evento novo para processar.");
-            return;
-        }
-
-        var events = eventRepository.findAll();
-        var existingActiveEvent = events.stream().filter(Event::isActive).findFirst();
-        if (existingActiveEvent.isPresent()) {
-            log.info("Já existe um evento ativo, não foi possível iniciar evento: {}", existingActiveEvent.get().getName());
+            log.info("Nenhum evento finalizado para processar.");
             return;
         }
 
@@ -73,16 +66,18 @@ public class EventStatusScheduler {
 
             var pendingEnrollments = enrollmentRepository.findByEventAndWasPresent(event, WasPresent.PENDING);
 
-            pendingEnrollments.forEach(enrollment -> enrollment.setWasPresent(WasPresent.FALSE));
-            
-            enrollmentRepository.saveAll(pendingEnrollments);
-            
-            log.info("{} participantes marcados como ausentes.", pendingEnrollments.size());
+            if (!pendingEnrollments.isEmpty()) {
+                pendingEnrollments.forEach(enrollment -> enrollment.setWasPresent(WasPresent.FALSE));
+                enrollmentRepository.saveAll(pendingEnrollments);
+                log.info("{} participantes marcados como ausentes.", pendingEnrollments.size());
+            } else {
+                log.info("Nenhum participante com presença pendente para este evento.");
+            }
 
             event.setStatus(EventStatus.PROCESSED);
             event.setActive(false);
             eventRepository.save(event);
-            
+
             log.info("Evento '{}' marcado como processado.", event.getName());
         }
     }
@@ -90,10 +85,19 @@ public class EventStatusScheduler {
     @Scheduled(fixedRateString = "${certificate.processing.rate:60000}")
     @Transactional
     public void generateAndSendCertificates() {
+        var eventsReadyForCerts = eventRepository.findByStatus(EventStatus.PROCESSED);
+
         log.info("Executando verificação de certificados para gerar...");
-        List<Event> eventsReadyForCerts = eventRepository.findByStatus(EventStatus.PROCESSED);
 
         for (Event event : eventsReadyForCerts) {
+            var existsParticipants = enrollmentRepository.findEnrollmentsByEventId(event.getId(), PageRequest.of(0, 1)).getTotalElements() > 0;
+            if (!existsParticipants) {
+                log.info("Nenhum participante encontrado para o evento: {}." , event.getName());
+                event.setStatus(EventStatus.FINISHED);
+                eventRepository.save(event);
+                return;
+            }
+
             log.info("Disparando geração de certificados para o evento: {}", event.getName());
             var attendees = enrollmentRepository.findByEventAndWasPresentAndCertificateIsNull(event, WasPresent.TRUE);
 
