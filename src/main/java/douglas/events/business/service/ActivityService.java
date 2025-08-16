@@ -1,11 +1,13 @@
 package douglas.events.business.service;
 
 
+import douglas.events.application.dto.ActivityDto;
 import douglas.events.application.dto.response.ApiResponse;
 import douglas.events.application.dto.response.PaginationResponse;
 import douglas.events.infraestructure.exception.local.DateConflictException;
 import douglas.events.infraestructure.exception.local.EventNotFoundException;
 import douglas.events.infraestructure.exception.local.ListEmptyException;
+import douglas.events.infraestructure.exception.local.NotFoundException;
 import douglas.events.infraestructure.model.Activity;
 import douglas.events.infraestructure.repository.ActivityRepository;
 import jakarta.validation.constraints.NotNull;
@@ -62,6 +64,33 @@ public class ActivityService {
                 .toList();
 
         return new PageImpl<>(activities, PageRequest.of(page, pageSize), activities.size());
+    }
+
+    public Activity getActivityById(Long activityId) {
+        return activityRepository.findById(activityId)
+                .orElseThrow(() -> new NotFoundException("Atividade não encontrada"));
+    }
+
+    public Activity updateActivity(Long activityId, ActivityDto activityDto) {
+        var activity = getActivityById(activityId);
+
+        if (activityDto.name() != null) {
+            activity.setName(activityDto.name());
+        }
+        if (activityDto.description() != null) {
+            activity.setDescription(activityDto.description());
+        }
+        if (activityDto.duration() != activity.getDuration()) {
+            activity.setDuration(activityDto.duration());
+        }
+        if (activityDto.local() != null) {
+            activity.setLocal(activityDto.local());
+        }
+        return activityRepository.save(activity);
+    }
+
+    public void deleteActivity(Long activityId) {
+        activityRepository.deleteById(activityId);
     }
 
     @NotNull
