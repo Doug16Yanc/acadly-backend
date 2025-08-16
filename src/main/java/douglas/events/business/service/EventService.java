@@ -1,5 +1,6 @@
 package douglas.events.business.service;
 
+import douglas.events.infraestructure.exception.local.AlreadyActiveEventException;
 import douglas.events.infraestructure.exception.local.DateConflictException;
 import douglas.events.infraestructure.exception.local.EventNotFoundException;
 import douglas.events.infraestructure.exception.local.NotFoundException;
@@ -11,7 +12,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import java.time.format.DateTimeFormatter;
-import java.util.Comparator;
 
 @Service
 @RequiredArgsConstructor
@@ -24,19 +24,26 @@ public class EventService {
             throw new DateConflictException("A data de fim do evento não pode ser antes da sua data de início.");
         }
 
+        var latestEventOpt = eventRepository.findTopByOrderByFinalDateDesc();
+
+        if (latestEventOpt.isPresent()) {
+            Event latestEvent = latestEventOpt.get();
+
+            if (!event.getInitialDate().isAfter(latestEvent.getFinalDate())) {
+                throw new DateConflictException(
+                        "A data de início do novo evento (" + event.getInitialDate().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")) +
+                                ") deve ser posterior à data de término do último evento já agendado (" + latestEvent.getFinalDate().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")) + ")."
+                );
+            }
+        }
+
         if (event.isActive()) {
-            var lastActiveEvent = getAllEvents(0, Integer.MAX_VALUE).getContent().stream()
-                    .filter(Event::isActive)
-                    .max(Comparator.comparing(Event::getFinalDate));
+            var activeEventOpt = eventRepository.findTopByIsActiveTrueOrderByFinalDateDesc();
 
-            if (lastActiveEvent.isPresent()) {
-                Event activeEvent = lastActiveEvent.get();
-
-                if (!event.getInitialDate().isAfter(activeEvent.getFinalDate())) {
-                    throw new DateConflictException(
-                            "A data de início do novo evento deve ser posterior à data de término do evento ativo atual (" + activeEvent.getFinalDate().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")) + ")."
-                    );
-                }
+            if (activeEventOpt.isPresent()) {
+                throw new AlreadyActiveEventException(
+                        "Não é possível criar um novo evento ativo, pois o evento '" + activeEventOpt.get().getName() + "' já está ativo."
+                );
             }
         }
 
