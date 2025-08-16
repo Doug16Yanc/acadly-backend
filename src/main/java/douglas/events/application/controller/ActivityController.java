@@ -42,4 +42,22 @@ public class ActivityController {
 
         return activityService.getApiResponseEntity(listActivities);
     }
+
+    @GetMapping("/get-by-id/{id}")
+    public ResponseEntity<Activity> getActivityById(@PathVariable Long id) {
+        var activity = activityService.getActivityById(id);
+        return ResponseEntity.ok().body(activity);
+    }
+
+    @PutMapping("/update/{id}")
+    public ResponseEntity<Activity> updateActivity(@PathVariable Long id, @RequestBody ActivityDto activityDto) {
+        var activity = activityService.updateActivity(id, activityDto);
+        return ResponseEntity.ok().body(activity);
+    }
+
+    @DeleteMapping("/delete/{id}")
+    public ResponseEntity<Void> deleteActivity(@PathVariable Long id) {
+        activityService.deleteActivity(id);
+        return ResponseEntity.ok().build();
+    }
 }
