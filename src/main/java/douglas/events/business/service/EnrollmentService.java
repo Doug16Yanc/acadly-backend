@@ -5,6 +5,7 @@ import douglas.events.infraestructure.exception.local.ListEmptyException;
 import douglas.events.infraestructure.exception.local.ParticipantNotFoundException;
 import douglas.events.infraestructure.model.Enrollment;
 import douglas.events.infraestructure.model.enums.EnrollmentStatus;
+import douglas.events.infraestructure.model.enums.EventStatus;
 import douglas.events.infraestructure.model.enums.WasPresent;
 import douglas.events.infraestructure.repository.EnrollmentRepository;
 import douglas.events.infraestructure.repository.PersonRepository;
@@ -15,7 +16,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Service
@@ -79,9 +79,8 @@ public class EnrollmentService {
         }
 
         var event = enrollment.getEvent();
-        var now = LocalDate.now();
 
-        if (now.isAfter(event.getInitialDate()) && now.isBefore(event.getFinalDate())) {
+        if (event.getStatus() == EventStatus.STARTED) {
             enrollment.setWasPresent(WasPresent.TRUE);
             enrollmentRepository.save(enrollment);
             return new ValidationResponseDTO("Check-in realizado com sucesso!",
@@ -91,20 +90,22 @@ public class EnrollmentService {
             );
         } else {
             String message;
-            String status;
-            if (now.isBefore(event.getInitialDate())) {
-                message = "O check-in para este evento ainda não começou.";
-                status = "EVENTO NÃO INICIADO";
-            } else {
-                message = "O período de check-in para este evento já encerrou.";
-                status = "EVENTO ENCERRADO";
-            }
+            String statusResponse = switch (event.getStatus()) {
+                case UPCOMING -> {
+                    message = "O check-in para este evento ainda não começou.";
+                    yield "EVENTO NÃO INICIADO";
+                }
+                default -> {
+                    message = "O período de check-in para este evento já encerrou ou o evento foi cancelado.";
+                    yield "EVENTO ENCERRADO/CANCELADO";
+                }
+            };
 
             return new ValidationResponseDTO(
                     message,
                     enrollment.getParticipant().getName(),
-                    enrollment.getEvent().getName(),
-                    status
+                    event.getName(),
+                    statusResponse
             );
         }
     }

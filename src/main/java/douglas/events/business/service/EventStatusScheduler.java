@@ -27,10 +27,40 @@ public class EventStatusScheduler {
 
     @Scheduled(fixedRateString = "${event.processing.rate:60000}")
     @Transactional
+    public void processUpcomingEvents() {
+        log.info("Executando verificação de eventos para lançar...");
+
+        var eventsToUpcoming = eventRepository.findByInitialDateAfter(LocalDate.now());
+
+        if (eventsToUpcoming.isEmpty()) {
+            log.info("Nenhum evento novo para lançar.");
+            return;
+        }
+
+        for (Event event : eventsToUpcoming) {
+            log.info("Verificando status do evento: {}" , event.getName());
+
+            if (event.getStatus() != EventStatus.UPCOMING) {
+                log.info("Lançando evento: {}", event.getName());
+                event.setStatus(EventStatus.UPCOMING);
+                event.setActive(false);
+                eventRepository.save(event);
+                return;
+            }
+            log.info("Evento já em lançamento: {}" , event.getStatus());
+        }
+    }
+
+    @Scheduled(fixedRateString = "${event.processing.rate:60000}")
+    @Transactional
     public void processStartEvents() {
         log.info("Executando verificação de eventos para iniciar...");
+        LocalDate now = LocalDate.now();
 
-        var eventsToStart = eventRepository.findByStatusAndInitialDateBefore(EventStatus.UPCOMING, LocalDate.now());
+        var eventsToStart = eventRepository
+                .findByStatusAndInitialDateLessThanEqualAndFinalDateGreaterThanEqual(
+                EventStatus.UPCOMING, now, now
+        );
 
         if (eventsToStart.isEmpty()) {
             log.info("Nenhum evento novo para iniciar.");
@@ -38,13 +68,15 @@ public class EventStatusScheduler {
         }
 
         for (Event event : eventsToStart) {
-            log.info("Iniciando evento: {}", event.getName());
-
-            event.setStatus(EventStatus.STARTED);
-            event.setActive(true);
-            eventRepository.save(event);
-
-            log.info("Evento '{}' marcado como ATIVO.", event.getName());
+            log.info("Verificando se o evento está ativo: {}", event.getName());
+            if (event.isActive()) {
+                log.info("Iniciando evento: {}", event.getName());
+                event.setStatus(EventStatus.STARTED);
+                eventRepository.save(event);
+                log.info("Evento '{}' iniciado.", event.getName());
+                return;
+            }
+            log.info("Evento não pode ser iniciado.");
         }
     }
 

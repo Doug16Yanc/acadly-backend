@@ -14,9 +14,14 @@ public interface EventRepository extends JpaRepository<Event, Long> {
     boolean existsByIsActiveTrue();
     Event findEventByIsActive(boolean isActive);
     List<Event> findByStatusAndFinalDateLessThanEqual(EventStatus status, LocalDate currentDate);
-    List<Event> findByStatusAndInitialDateBefore(EventStatus status, LocalDate currentDate);
+    List<Event> findByInitialDateAfter(LocalDate currentDate);
     List<Event> findByStatus(EventStatus status);
     Optional<Event> findTopByIsActiveTrueOrderByFinalDateDesc();
     Optional<Event> findTopByOrderByFinalDateDesc();
     Page<Event> findByNameContainingIgnoreCase(String title, Pageable pageable);
+    List<Event> findByStatusAndInitialDateLessThanEqualAndFinalDateGreaterThanEqual(
+            EventStatus status,
+            LocalDate initialDate,
+            LocalDate finalDate
+    );
 }
