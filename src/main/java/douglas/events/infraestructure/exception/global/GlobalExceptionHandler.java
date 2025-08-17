@@ -74,4 +74,16 @@ public class GlobalExceptionHandler {
         ErrorResponse body = new ErrorResponse(ex.getMessage());
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(body);
     }
+
+    @ExceptionHandler(ValidationCodeException.class)
+    public ResponseEntity<ErrorResponse> handleValidationCode(ValidationCodeException ex) {
+        ErrorResponse body = new ErrorResponse(ex.getMessage());
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(body);
+    }
+
+    @ExceptionHandler(ParticipantAlreadyEnrolledException.class)
+    public ResponseEntity<ErrorResponse> handleParticipantAlreadyEnrolled(ParticipantAlreadyEnrolledException ex) {
+        ErrorResponse body = new ErrorResponse(ex.getMessage());
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(body);
+    }
 }

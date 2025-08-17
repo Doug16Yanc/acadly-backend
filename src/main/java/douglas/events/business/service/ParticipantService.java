@@ -17,7 +17,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -34,16 +33,23 @@ public class ParticipantService {
         if (!eventRepository.existsById(eventId)) {
             throw new EventNotFoundException("Evento não encontrado com o ID: " + eventId);
         }
-        participant.setRole(Role.PARTICIPANT);
-        var savedParticipant = personRepository.save(participant);
-        var enrollment = enrollmentService.createEnrollment(eventId, savedParticipant.getId());
+        var personToEnroll = this.personRepository.findByEmail(participant.getEmail());
+
+        if (personToEnroll == null) {
+            participant.setRole(Role.PARTICIPANT);
+            return this.personRepository.save(participant);
+        }
+
+        var enrollment = enrollmentService.createEnrollment(eventId, personToEnroll.getId());
 
         if (enrollment == null) {
             throw new EnrollmentException("Não foi possível criar a inscrição para o participante.");
         }
         this.eventPublisher.publishEvent(new ParticipantCreatedEventDTO(enrollment));
-        return savedParticipant;
+        return personToEnroll;
     }
+
+
 
     public Page<Person> getAllParticipants(Integer page, Integer pageSize) {
         var participants = personRepository.findByRole(Role.PARTICIPANT, PageRequest.of(page, pageSize));

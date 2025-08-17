@@ -5,10 +5,13 @@ import douglas.events.infraestructure.exception.local.DateConflictException;
 import douglas.events.infraestructure.exception.local.EventNotFoundException;
 import douglas.events.infraestructure.exception.local.NotFoundException;
 import douglas.events.infraestructure.model.Event;
+import douglas.events.infraestructure.model.Person;
 import douglas.events.infraestructure.repository.EventRepository;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.time.format.DateTimeFormatter;
@@ -19,6 +22,7 @@ public class EventService {
 
     private final EventRepository eventRepository;
 
+    @Transactional
     public Event createEvent(Event event) {
         if (event.getFinalDate().isBefore(event.getInitialDate())) {
             throw new DateConflictException("A data de fim do evento não pode ser antes da sua data de início.");
@@ -50,7 +54,13 @@ public class EventService {
         return eventRepository.save(event);
     }
 
-    public Page<Event> getAllEvents(Integer page, Integer pageSize) {
+    public Page<Event> getAllEvents(String query, Integer page, Integer pageSize) {
+        var pageable = PageRequest.of(page, pageSize, Sort.by("initialDate").descending());
+
+        if (query != null && !query.trim().isEmpty()) {
+            return eventRepository.findByNameContainingIgnoreCase(query, pageable);
+        }
+
         return eventRepository.findAll(PageRequest.of(page, pageSize));
     }
 
@@ -58,6 +68,16 @@ public class EventService {
         return eventRepository.findById(id).orElseThrow(() ->
                 new NotFoundException("Evento não encontrado.")
         );
+    }
+
+    public Page<Person> getParticipantsByEvent(Long eventId, Integer page, Integer pageSize) {
+        eventRepository.findById(eventId).orElseThrow(() -> new EventNotFoundException("Evento naão encontrado"));
+
+        return eventRepository.findAllParticipantsByEvent(eventId, PageRequest.of(page, pageSize));
+    }
+
+    public boolean existsActive() {
+        return eventRepository.existsByIsActiveTrue();
     }
 
     public Event getActiveEvent() {
@@ -76,6 +96,7 @@ public class EventService {
                 .orElseThrow(() -> new NotFoundException("Evento não encontrado"));
     }
 
+    @Transactional
     public Event updateEvent(Long id, Event event) {
         var existentEvent = getEventEntityById(id);
         if (existentEvent == null) {
@@ -96,6 +117,18 @@ public class EventService {
         if (event.getFinalDate() != null) {
             existentEvent.setFinalDate(event.getFinalDate());
         }
+        if (event.isActive() != existentEvent.isActive()) {
+            existentEvent.setActive(event.isActive());
+        }
         return eventRepository.save(existentEvent);
+    }
+
+    @Transactional
+    public void deleteEvent(Long id) {
+        var existentEvent = getEventEntityById(id);
+        if (existentEvent == null) {
+            throw new EventNotFoundException("Evento não encontrado com o ID: " + id);
+        }
+        eventRepository.deleteById(id);
     }
 }

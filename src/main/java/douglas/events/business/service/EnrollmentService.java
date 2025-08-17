@@ -2,20 +2,21 @@ package douglas.events.business.service;
 
 import douglas.events.application.dto.response.ValidationResponseDTO;
 import douglas.events.infraestructure.exception.local.ListEmptyException;
+import douglas.events.infraestructure.exception.local.ParticipantAlreadyEnrolledException;
 import douglas.events.infraestructure.exception.local.ParticipantNotFoundException;
+import douglas.events.infraestructure.exception.local.ValidationCodeException;
 import douglas.events.infraestructure.model.Enrollment;
 import douglas.events.infraestructure.model.enums.EnrollmentStatus;
+import douglas.events.infraestructure.model.enums.EventStatus;
 import douglas.events.infraestructure.model.enums.WasPresent;
 import douglas.events.infraestructure.repository.EnrollmentRepository;
 import douglas.events.infraestructure.repository.PersonRepository;
-import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Service
@@ -30,6 +31,10 @@ public class EnrollmentService {
         var participant = personRepository.findById(participantId)
                 .orElseThrow(() -> new ParticipantNotFoundException("Participante não encontrado com o ID: " + participantId));
 
+        var existingEnrollment = enrollmentRepository.findByEventAndParticipant(existentEvent, participant);
+        if (existingEnrollment.isPresent()) {
+            throw new ParticipantAlreadyEnrolledException("Participante já inscrito neste evento.");
+        }
         var enrollment = new Enrollment();
         enrollment.setEvent(existentEvent);
         enrollment.setParticipant(participant);
@@ -39,9 +44,8 @@ public class EnrollmentService {
 
         String numericCode = "SUB" + String.format("%06d", savedEnrollment.getId());
         savedEnrollment.setNumericCode(numericCode);
-        var finalEnrollment = enrollmentRepository.save(savedEnrollment);
 
-        return enrollmentRepository.save(finalEnrollment);
+        return enrollmentRepository.save(savedEnrollment);
     }
 
     public Page<Enrollment> getAllEnrollmentsByEventId(Long eventId, Integer page, Integer pageSize) {
@@ -57,14 +61,14 @@ public class EnrollmentService {
     @Transactional
     public ValidationResponseDTO validateByNumericCode(Long eventId, String numericCode) {
         Enrollment enrollment = enrollmentRepository.findByEventIdAndNumericCode(eventId, numericCode)
-                .orElseThrow(() -> new EntityNotFoundException("Código de inscrição inválido para este evento."));
+                .orElseThrow(() -> new ValidationCodeException("Código de inscrição inválido para este evento."));
         return performCheckIn(enrollment);
     }
 
     @Transactional
     public ValidationResponseDTO validateByToken(String token) {
         Enrollment enrollment = enrollmentRepository.findByValidationToken(token)
-                .orElseThrow(() -> new EntityNotFoundException("QR Code inválido ou inscrição não encontrada."));
+                .orElseThrow(() -> new ValidationCodeException("QR Code inválido ou inscrição não encontrada."));
 
         return performCheckIn(enrollment);
     }
@@ -79,9 +83,8 @@ public class EnrollmentService {
         }
 
         var event = enrollment.getEvent();
-        var now = LocalDate.now();
 
-        if (now.isAfter(event.getInitialDate()) && now.isBefore(event.getFinalDate())) {
+        if (event.getStatus() == EventStatus.STARTED) {
             enrollment.setWasPresent(WasPresent.TRUE);
             enrollmentRepository.save(enrollment);
             return new ValidationResponseDTO("Check-in realizado com sucesso!",
@@ -91,20 +94,22 @@ public class EnrollmentService {
             );
         } else {
             String message;
-            String status;
-            if (now.isBefore(event.getInitialDate())) {
-                message = "O check-in para este evento ainda não começou.";
-                status = "EVENTO NÃO INICIADO";
-            } else {
-                message = "O período de check-in para este evento já encerrou.";
-                status = "EVENTO ENCERRADO";
-            }
+            String statusResponse = switch (event.getStatus()) {
+                case UPCOMING -> {
+                    message = "O check-in para este evento ainda não começou.";
+                    yield "EVENTO NÃO INICIADO";
+                }
+                default -> {
+                    message = "O período de check-in para este evento já encerrou ou o evento foi cancelado.";
+                    yield "EVENTO ENCERRADO/CANCELADO";
+                }
+            };
 
             return new ValidationResponseDTO(
                     message,
                     enrollment.getParticipant().getName(),
-                    enrollment.getEvent().getName(),
-                    status
+                    event.getName(),
+                    statusResponse
             );
         }
     }

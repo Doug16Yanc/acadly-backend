@@ -29,7 +29,7 @@ public class Person implements UserDetails {
     @Column(nullable = false)
     private String name;
 
-    @Column(nullable = false)
+    @Column(nullable = false, unique = true)
     private String email;
 
     private String password;
@@ -40,7 +40,7 @@ public class Person implements UserDetails {
     @Enumerated(EnumType.STRING)
     private ParticipantType participantType;
 
-    @OneToMany(mappedBy = "participant")
+    @OneToMany(mappedBy = "participant", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Enrollment> enrollments;
 
     private LocalDateTime createdAt;
