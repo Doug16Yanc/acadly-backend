@@ -5,6 +5,7 @@ import douglas.events.infraestructure.exception.local.DateConflictException;
 import douglas.events.infraestructure.exception.local.EventNotFoundException;
 import douglas.events.infraestructure.exception.local.NotFoundException;
 import douglas.events.infraestructure.model.Event;
+import douglas.events.infraestructure.model.Person;
 import douglas.events.infraestructure.repository.EventRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -67,6 +68,12 @@ public class EventService {
         return eventRepository.findById(id).orElseThrow(() ->
                 new NotFoundException("Evento não encontrado.")
         );
+    }
+
+    public Page<Person> getParticipantsByEvent(Long eventId, Integer page, Integer pageSize) {
+        eventRepository.findById(eventId).orElseThrow(() -> new EventNotFoundException("Evento naão encontrado"));
+
+        return eventRepository.findAllParticipantsByEvent(eventId, PageRequest.of(page, pageSize));
     }
 
     public boolean existsActive() {

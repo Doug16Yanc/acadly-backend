@@ -49,7 +49,7 @@ public class Enrollment {
     @Enumerated(EnumType.STRING)
     private WasPresent wasPresent = WasPresent.PENDING;
 
-    @OneToOne(mappedBy = "enrollment", cascade = CascadeType.ALL)
+    @OneToOne(mappedBy = "enrollment", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference
     private Certificate certificate;
 

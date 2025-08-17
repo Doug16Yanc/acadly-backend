@@ -1,10 +1,12 @@
 package douglas.events.infraestructure.repository;
 
 import douglas.events.infraestructure.model.Event;
+import douglas.events.infraestructure.model.Person;
 import douglas.events.infraestructure.model.enums.EventStatus;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -24,4 +26,11 @@ public interface EventRepository extends JpaRepository<Event, Long> {
             LocalDate initialDate,
             LocalDate finalDate
     );
+
+    @Query(
+            value = "SELECT p.* FROM person AS p JOIN enrollments AS e ON p.id=e.participant_id WHERE e.event_id = ?1",
+            countQuery = "SELECT count(*) FROM person AS p JOIN enrollments AS e ON p.id = e.participant_id WHERE e.event_id = ?1",
+            nativeQuery = true
+    )
+    Page<Person> findAllParticipantsByEvent(Long eventId, Pageable pageable);
 }
