@@ -18,5 +18,5 @@ public interface EventRepository extends JpaRepository<Event, Long> {
     List<Event> findByStatus(EventStatus status);
     Optional<Event> findTopByIsActiveTrueOrderByFinalDateDesc();
     Optional<Event> findTopByOrderByFinalDateDesc();
-    Page<Event> findByNameContainingIgnoreCase(String query, Pageable pageable);
+    Page<Event> findByNameContainingIgnoreCase(String title, Pageable pageable);
 }

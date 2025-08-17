@@ -1,0 +1,6 @@
+ALTER TABLE events
+ALTER
+COLUMN description TYPE VARCHAR(1000) USING (description::VARCHAR(1000));
+
+ALTER TABLE events
+    ALTER COLUMN description SET NOT NULL;
