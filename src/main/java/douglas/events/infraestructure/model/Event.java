@@ -26,6 +26,7 @@ public class Event {
     @Column(nullable = false)
     private String name;
 
+    @Column(nullable = false, length = 1000)
     private String description;
 
     private LocalDate initialDate;
