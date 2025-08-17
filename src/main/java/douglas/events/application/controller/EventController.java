@@ -71,10 +71,11 @@ public class EventController {
 
     @GetMapping("/get-all-events")
     public ResponseEntity<ApiResponse<EventResponseDTO>> getAllEvents(
+            @RequestParam(name = "query", defaultValue = "") String query,
             @RequestParam(name = "page", defaultValue = "0") Integer page,
             @RequestParam(name = "pageSize", defaultValue = "10") Integer pageSize
     ) {
-        var events = eventService.getAllEvents(page, pageSize);
+        var events = eventService.getAllEvents(query, page, pageSize);
         return getApiResponseEntity(events, EventResponseDTO::fromEntity);
     }
 
@@ -83,5 +84,17 @@ public class EventController {
         var event = eventService.updateEvent(id, EventDto.toEntity(eventDto));
 
         return ResponseEntity.ok(EventResponseDTO.fromEntity(event));
+    }
+
+    @DeleteMapping("/delete/{id}")
+    public ResponseEntity<Void> deleteEvent(@PathVariable Long id) {
+        eventService.deleteEvent(id);
+        return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/exists-active")
+    public ResponseEntity<Boolean> existsActive() {
+        var isActive = eventService.existsActive();
+        return ResponseEntity.ok(isActive);
     }
 }
