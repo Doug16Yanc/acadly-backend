@@ -2,8 +2,7 @@ package douglas.events.application.controller;
 
 import douglas.events.application.dto.request.AuthEmployeeDto;
 import douglas.events.application.dto.request.AuthEmployeeResponseDto;
-import douglas.events.application.dto.request.CreateEmployeeDto;
-import douglas.events.application.dto.request.UpdateEmployeeDto;
+import douglas.events.application.dto.request.CreateOrUpdateEmployeeDto;
 import douglas.events.application.dto.response.ApiResponse;
 import douglas.events.application.dto.response.EmployeeResponseDto;
 import douglas.events.business.service.AuthService;
@@ -26,13 +25,13 @@ public class EmployeeController {
     private final AuthService authService;
 
     @PostMapping("/register")
-    public ResponseEntity<EmployeeResponseDto> createEmployee(@RequestBody CreateEmployeeDto createDto) {
+    public ResponseEntity<EmployeeResponseDto> createEmployee(@RequestBody CreateOrUpdateEmployeeDto createDto) {
         Person newEmployee = employeeService.createEmployee(createDto);
         EmployeeResponseDto responseDto = EmployeeResponseDto.fromEntity(newEmployee);
         return ResponseEntity.status(HttpStatus.CREATED).body(responseDto);
     }
 
-    @GetMapping("/get-all")
+    @GetMapping("/get-all-employees")
     public ResponseEntity<ApiResponse<EmployeeResponseDto>> getAllEmployees(
             @RequestParam(name = "page", defaultValue = "0") Integer page,
             @RequestParam(name = "pageSize", defaultValue = "10") Integer pageSize
@@ -49,7 +48,7 @@ public class EmployeeController {
     }
 
     @PutMapping("/update/{id}")
-    public ResponseEntity<EmployeeResponseDto> updateEmployee(@PathVariable Long id, @RequestBody UpdateEmployeeDto updateDto) {
+    public ResponseEntity<EmployeeResponseDto> updateEmployee(@PathVariable Long id, @RequestBody CreateOrUpdateEmployeeDto updateDto) {
         Person updatedEmployee = employeeService.updateEmployee(id, updateDto);
         EmployeeResponseDto responseDto = EmployeeResponseDto.fromEntity(updatedEmployee);
         return ResponseEntity.ok(responseDto);

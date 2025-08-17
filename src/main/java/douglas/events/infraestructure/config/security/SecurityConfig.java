@@ -30,7 +30,7 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(a -> a
-                        .requestMatchers("/","/auth/login", "/auth/register", "/event/get-all-events", "event/get-event-active",
+                        .requestMatchers("/","/auth/login", "/auth/register", "/employee/auth", "/event/get-all-events", "event/get-event-active",
                                 "classification/find-by-type/{type}", "/classification/types", "/participant/create-participation/**",
                                 "/v3/api-docs/**", "/swagger-ui/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/activity/**").permitAll()
@@ -39,7 +39,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.PUT, "/event/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.DELETE, "/event/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.POST, "/employee/register").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.POST, "/employee/auth").hasAnyRole("ADMIN", "EMPLOYEE")
+                      //  .requestMatchers(HttpMethod.POST, "/employee/auth").hasAnyRole("ADMIN", "EMPLOYEE")
                         .requestMatchers(HttpMethod.GET, "/employee/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.PUT, "/employee/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.DELETE, "/employee/**").hasRole("ADMIN")

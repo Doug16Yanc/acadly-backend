@@ -45,7 +45,6 @@ public class Person implements UserDetails {
 
     private LocalDateTime createdAt;
 
-
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return List.of(new SimpleGrantedAuthority("ROLE_" + this.role.name()));
