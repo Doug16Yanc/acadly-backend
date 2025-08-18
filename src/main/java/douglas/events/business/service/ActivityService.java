@@ -6,7 +6,6 @@ import douglas.events.application.dto.response.ApiResponse;
 import douglas.events.application.dto.response.PaginationResponse;
 import douglas.events.infraestructure.exception.local.DateConflictException;
 import douglas.events.infraestructure.exception.local.EventNotFoundException;
-import douglas.events.infraestructure.exception.local.ListEmptyException;
 import douglas.events.infraestructure.exception.local.NotFoundException;
 import douglas.events.infraestructure.model.Activity;
 import douglas.events.infraestructure.repository.ActivityRepository;
@@ -43,21 +42,12 @@ public class ActivityService {
     }
 
     public Page<Activity> findAllActivitiesByEvent(Long eventId, Integer page, Integer pageSize) {
-        var activities = activityRepository.findAllActivitiesByEventId(eventId, PageRequest.of(page, pageSize));
 
-        if (activities.isEmpty()) {
-            throw new ListEmptyException("Não há atividades para o evento em questão.");
-        }
-
-        return activities;
+        return activityRepository.findAllActivitiesByEventId(eventId, PageRequest.of(page, pageSize));
     }
 
     public Page<Activity> findAllActivitiesByActiveEvent(Integer page, Integer pageSize) {
         var activityList = activityRepository.findAll(PageRequest.of(page, pageSize));
-
-        if (activityList.isEmpty()) {
-            throw new ListEmptyException("Não há atividades para o evento em questão.");
-        }
 
         var activities = activityList.stream()
                 .filter(activity -> activity.getEvent() != null && activity.getEvent().isActive())
