@@ -31,7 +31,7 @@ public class TokenService {
             Algorithm algorithm = Algorithm.HMAC256(privateKey);
             Instant now = Instant.now();
 
-            long expirationSeconds = 86400L; // 1 day
+            long expirationSeconds = 86400L;
             return JWT.create()
                     .withClaim("name", person.getName())
                     .withClaim("role", person.getRole().name())

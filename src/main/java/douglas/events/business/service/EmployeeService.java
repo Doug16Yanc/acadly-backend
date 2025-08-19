@@ -1,7 +1,6 @@
 package douglas.events.business.service;
 
-import douglas.events.application.dto.request.CreateEmployeeDto;
-import douglas.events.application.dto.request.UpdateEmployeeDto;
+import douglas.events.application.dto.request.CreateOrUpdateEmployeeDto;
 import douglas.events.infraestructure.exception.local.*;
 import douglas.events.infraestructure.model.Person;
 import douglas.events.infraestructure.model.enums.Role;
@@ -36,8 +35,18 @@ public class EmployeeService {
         return person;
     }
 
+    public Person getEmployeeByEmail(String employeeEmail) {
+        var person = personRepository.findByEmail(employeeEmail);
+
+        if (person.getRole() != Role.EMPLOYEE) {
+            throw new NotFoundException("Funcionário não encontrado com o email: " + employeeEmail);
+        }
+
+        return person;
+    }
+
     @Transactional
-    public Person createEmployee(CreateEmployeeDto dto) {
+    public Person createEmployee(CreateOrUpdateEmployeeDto dto) {
         var person = personRepository.findByEmail(dto.email());
 
         if (person.isPresent()){
@@ -54,7 +63,7 @@ public class EmployeeService {
     }
 
     @Transactional
-    public Person updateEmployee(Long employeeId, UpdateEmployeeDto dto) {
+    public Person updateEmployee(Long employeeId, CreateOrUpdateEmployeeDto dto) {
         var employeeToUpdate = getEmployeeById(employeeId);
 
         var personWithNewEmail = personRepository.findByEmail(dto.email()).orElse(null);
@@ -76,5 +85,4 @@ public class EmployeeService {
         }
         personRepository.delete(employeeToDelete);
     }
-
 }

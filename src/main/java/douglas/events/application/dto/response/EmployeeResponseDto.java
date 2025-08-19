@@ -1,5 +1,6 @@
 package douglas.events.application.dto.response;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import douglas.events.infraestructure.model.Person;
 
 import java.time.LocalDateTime;
@@ -8,6 +9,8 @@ public record EmployeeResponseDto(
     Long id,
     String name,
     String email,
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd/MM/yyyy")
+
     LocalDateTime createdAt
 ) {
     public static EmployeeResponseDto fromEntity(Person person) {
