@@ -15,7 +15,7 @@ public record EmployeeResponseDto(
             person.getId(),
             person.getName(),
             person.getEmail(),
-            LocalDateTime.now()
+            person.getCreatedAt()
         );
     }
 }
