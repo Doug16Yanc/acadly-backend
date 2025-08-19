@@ -36,9 +36,9 @@ public class EmployeeService {
     }
 
     public Person getEmployeeByEmail(String employeeEmail) {
-        var person = personRepository.findByEmail(employeeEmail);
+        var person = personRepository.findByEmail(employeeEmail).orElse(null);
 
-        if (person.getRole() != Role.EMPLOYEE) {
+        if (person != null && person.getRole() != Role.EMPLOYEE) {
             throw new NotFoundException("Funcionário não encontrado com o email: " + employeeEmail);
         }
 
