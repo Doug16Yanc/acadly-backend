@@ -23,7 +23,7 @@ public class AuthService {
     private final TokenService tokenService;
 
     public Person createAdmin(CreateAdminDto createAdminDto) {
-        var alreadyExistent = personRepository.findByEmail(createAdminDto.email());
+        var alreadyExistent = personRepository.findByEmail(createAdminDto.email()).orElse(null);
 
         if (alreadyExistent != null) {
             throw new UsernameAlreadyExistsException("Email já cadastrado.");
@@ -43,7 +43,7 @@ public class AuthService {
     }
 
     public Person findAdminByUsername(String email) {
-        var admin = personRepository.findByEmail(email);
+        var admin = personRepository.findByEmail(email).orElse(null);
         if (admin == null) throw new AdminNotFoundException("Administrador não encontrado.");
 
         if (admin.getRole() != Role.ADMIN) {
@@ -63,7 +63,7 @@ public class AuthService {
     }
 
     public Person findEmployeeByUsername(String email) {
-        var employee = personRepository.findByEmail(email);
+        var employee = personRepository.findByEmail(email).orElse(null);
         if (employee == null) throw new EmployeeNotFoundException("Funcionário não encontrado com o email: " + email);
 
         if (employee.getRole() != Role.EMPLOYEE) {

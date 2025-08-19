@@ -33,22 +33,24 @@ public class ParticipantService {
         if (!eventRepository.existsById(eventId)) {
             throw new EventNotFoundException("Evento não encontrado com o ID: " + eventId);
         }
-        var personToEnroll = this.personRepository.findByEmail(participant.getEmail());
 
-        if (personToEnroll == null) {
-            participant.setRole(Role.PARTICIPANT);
-            return this.personRepository.save(participant);
-        }
+        Person personToEnroll = this.personRepository
+                .findByEmail(participant.getEmail())
+                .orElse(participant);
 
-        var enrollment = enrollmentService.createEnrollment(eventId, personToEnroll.getId());
+        personToEnroll.setRole(Role.PARTICIPANT);
+        var savedParticipant = personRepository.save(personToEnroll);
+
+        var enrollment = enrollmentService.createEnrollment(eventId, savedParticipant.getId());
 
         if (enrollment == null) {
             throw new EnrollmentException("Não foi possível criar a inscrição para o participante.");
         }
-        this.eventPublisher.publishEvent(new ParticipantCreatedEventDTO(enrollment));
-        return personToEnroll;
-    }
 
+        this.eventPublisher.publishEvent(new ParticipantCreatedEventDTO(enrollment));
+
+        return savedParticipant;
+    }
 
 
     public Page<Person> getAllParticipants(Integer page, Integer pageSize) {
@@ -62,7 +64,7 @@ public class ParticipantService {
     }
 
     public Person getParticipantByEmail(String email) {
-        var participant = personRepository.findByEmail(email);
+        var participant = personRepository.findByEmail(email).orElse(null);
 
         if (participant == null) {
             throw new NotFoundException("Participante não encontrado.");

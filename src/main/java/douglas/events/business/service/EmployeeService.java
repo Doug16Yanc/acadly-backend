@@ -49,7 +49,7 @@ public class EmployeeService {
     public Person createEmployee(CreateOrUpdateEmployeeDto dto) {
         var person = personRepository.findByEmail(dto.email());
 
-        if (person != null){
+        if (person.isPresent()){
             throw new UsernameAlreadyExistsException("O email informado já está em uso.");
         }
 
@@ -66,7 +66,7 @@ public class EmployeeService {
     public Person updateEmployee(Long employeeId, CreateOrUpdateEmployeeDto dto) {
         var employeeToUpdate = getEmployeeById(employeeId);
 
-        var personWithNewEmail = personRepository.findByEmail(dto.email());
+        var personWithNewEmail = personRepository.findByEmail(dto.email()).orElse(null);
         if (personWithNewEmail != null && !personWithNewEmail.getId().equals(employeeId)) {
             throw new UsernameAlreadyExistsException("O email informado já está em uso por outro usuário.");
         }

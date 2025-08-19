@@ -14,7 +14,7 @@ public class CorsConfig implements WebMvcConfigurer {
     @Override
     public void addCorsMappings(CorsRegistry registry) {
         registry.addMapping("/**")
-                .allowedOrigins(frontEndUrl, "https://192.168.0.181:4200", "https://192.168.10.162:4200")
+                .allowedOrigins(frontEndUrl, "https://192.168.0.181:4200", "https://192.168.10.162:4200", "https://acadly-fork-deploy.vercel.app")
                 .allowedMethods("GET", "POST", "PUT", "DELETE")
                 .allowedHeaders("*")
                 .allowCredentials(true);
