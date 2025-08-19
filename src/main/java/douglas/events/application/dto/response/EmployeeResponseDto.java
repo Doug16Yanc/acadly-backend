@@ -2,16 +2,20 @@ package douglas.events.application.dto.response;
 
 import douglas.events.infraestructure.model.Person;
 
+import java.time.LocalDateTime;
+
 public record EmployeeResponseDto(
     Long id,
     String name,
-    String email
+    String email,
+    LocalDateTime createdAt
 ) {
     public static EmployeeResponseDto fromEntity(Person person) {
         return new EmployeeResponseDto(
             person.getId(),
             person.getName(),
-            person.getEmail()
+            person.getEmail(),
+            LocalDateTime.now()
         );
     }
 }
