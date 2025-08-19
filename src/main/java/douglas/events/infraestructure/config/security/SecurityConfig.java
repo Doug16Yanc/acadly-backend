@@ -30,7 +30,7 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(a -> a
-                        .requestMatchers("/","/auth/login", "/employee/auth", "/auth/register", "/event/get-all-events", "event/get-event-active",
+                        .requestMatchers("/","/auth/login", "/auth/register", "/employee/auth", "/event/get-all-events", "event/get-event-active",
                                 "classification/find-by-type/{type}", "/classification/types", "/participant/create-participation/**",
                                 "/v3/api-docs/**", "/swagger-ui/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/activity/**").permitAll()
