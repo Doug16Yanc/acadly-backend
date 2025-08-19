@@ -1,6 +1,5 @@
 package douglas.events.infraestructure.config.security;
 
-import douglas.events.infraestructure.model.Person;
 import douglas.events.infraestructure.repository.PersonRepository;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -33,7 +32,7 @@ public class SecurityFilter extends OncePerRequestFilter {
         if (token != null && !token.isEmpty()) {
             String username = tokenService.validateToken(token);
             if (username != null) {
-                Person person = personRepository.findByEmail(username);
+                var person = personRepository.findByEmail(username).orElse(null);
 
                 if (person != null) {
                     if (person.getRole() != null) {

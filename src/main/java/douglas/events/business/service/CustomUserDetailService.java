@@ -1,5 +1,6 @@
 package douglas.events.business.service;
 
+import douglas.events.infraestructure.exception.local.NotFoundException;
 import douglas.events.infraestructure.repository.PersonRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.User;
@@ -18,7 +19,11 @@ public class CustomUserDetailService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        var person = this.personRepository.findByEmail(username);
+        var person = this.personRepository.findByEmail(username).orElse(null);
+
+        if (person == null) {
+            throw new NotFoundException("Usuário não encontrado com o email: " + username);
+        }
 
         return new User(
                 person.getEmail(),
