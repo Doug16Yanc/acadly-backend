@@ -35,8 +35,8 @@ public class EventService {
 
             if (!event.getInitialDateTime().isAfter(latestEvent.getFinalDateTime())) {
                 throw new DateConflictException(
-                        "A data e hora de início do novo evento (" + event.getInitialDateTime().format(DateTimeFormatter.ofPattern("dd/MM/yyyy:HH:mm:ss")) +
-                                ") deve ser posterior à data e hora de término do último evento já agendado (" + latestEvent.getFinalDateTime().format(DateTimeFormatter.ofPattern("dd/MM/yyyy:HH:mm:ss")) + ")."
+                        "A data e hora de início do novo evento (" + event.getInitialDateTime().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss")) +
+                                ") deve ser posterior à data e hora de término do último evento já agendado (" + latestEvent.getFinalDateTime().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss")) + ")."
                 );
             }
         }
