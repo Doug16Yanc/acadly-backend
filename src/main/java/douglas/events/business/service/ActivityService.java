@@ -11,14 +11,13 @@ import douglas.events.infraestructure.model.Activity;
 import douglas.events.infraestructure.repository.ActivityRepository;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.*;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
@@ -42,18 +41,21 @@ public class ActivityService {
     }
 
     public Page<Activity> findAllActivitiesByEvent(Long eventId, Integer page, Integer pageSize) {
-
-        return activityRepository.findAllActivitiesByEventId(eventId, PageRequest.of(page, pageSize));
+        Sort sort = Sort.by("dateTime").ascending();
+        Pageable pageable = PageRequest.of(page, pageSize, sort);
+        return activityRepository.findAllActivitiesByEventId(eventId, pageable);
     }
 
     public Page<Activity> findAllActivitiesByActiveEvent(Integer page, Integer pageSize) {
-        var activityList = activityRepository.findAll(PageRequest.of(page, pageSize));
+        Sort sort = Sort.by("dateTime").ascending();
+        Pageable pageable = PageRequest.of(page, pageSize, sort);
+        var activityList = activityRepository.findAll(pageable);
 
         var activities = activityList.stream()
                 .filter(activity -> activity.getEvent() != null && activity.getEvent().getIsActive())
                 .toList();
 
-        return new PageImpl<>(activities, PageRequest.of(page, pageSize), activities.size());
+        return new PageImpl<>(activities, pageable, activities.size());
     }
 
     public Activity getActivityById(Long activityId) {
@@ -70,8 +72,11 @@ public class ActivityService {
         if (activityDto.description() != null) {
             activity.setDescription(activityDto.description());
         }
-        if (activityDto.duration() != activity.getDuration()) {
+        if (!Objects.equals(activityDto.duration(), activity.getDuration())) {
             activity.setDuration(activityDto.duration());
+        }
+        if (activity.getDateTime() != null) {
+            activity.setDateTime(activityDto.dateTime());
         }
         if (activityDto.local() != null) {
             activity.setLocal(activityDto.local());
