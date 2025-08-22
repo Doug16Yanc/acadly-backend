@@ -15,6 +15,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Component
 @RequiredArgsConstructor
@@ -30,7 +31,7 @@ public class EventStatusScheduler {
     public void processUpcomingEvents() {
         log.info("Executando verificação de eventos para lançar...");
 
-        var eventsToUpcoming = eventRepository.findByInitialDateAfter(LocalDate.now());
+        var eventsToUpcoming = eventRepository.findByInitialDateTimeAfter(LocalDateTime.now());
 
         if (eventsToUpcoming.isEmpty()) {
             log.info("Nenhum evento novo para lançar.");
@@ -43,7 +44,7 @@ public class EventStatusScheduler {
             if (event.getStatus() != EventStatus.UPCOMING) {
                 log.info("Lançando evento: {}", event.getName());
                 event.setStatus(EventStatus.UPCOMING);
-                event.setActive(false);
+                event.setIsActive(false);
                 eventRepository.save(event);
                 return;
             }
@@ -55,10 +56,10 @@ public class EventStatusScheduler {
     @Transactional
     public void processStartEvents() {
         log.info("Executando verificação de eventos para iniciar...");
-        LocalDate now = LocalDate.now();
+        LocalDateTime now = LocalDateTime.now();
 
         var eventsToStart = eventRepository
-                .findByStatusAndInitialDateLessThanEqualAndFinalDateGreaterThanEqual(
+                .findByStatusAndInitialDateTimeLessThanEqualAndFinalDateTimeGreaterThanEqual(
                 EventStatus.UPCOMING, now, now
         );
 
@@ -69,7 +70,7 @@ public class EventStatusScheduler {
 
         for (Event event : eventsToStart) {
             log.info("Verificando se o evento está ativo: {}", event.getName());
-            if (event.isActive()) {
+            if (event.getIsActive()) {
                 log.info("Iniciando evento: {}", event.getName());
                 event.setStatus(EventStatus.STARTED);
                 eventRepository.save(event);
@@ -86,7 +87,7 @@ public class EventStatusScheduler {
     public void processFinishedEvents() {
         log.info("Executando verificação de eventos finalizados...");
 
-        var finishedEvents = eventRepository.findByStatusAndFinalDateLessThanEqual(EventStatus.STARTED, LocalDate.now());
+        var finishedEvents = eventRepository.findByStatusAndFinalDateTimeLessThanEqual(EventStatus.STARTED, LocalDateTime.now());
 
         if (finishedEvents.isEmpty()) {
             log.info("Nenhum evento finalizado para processar.");
@@ -107,7 +108,7 @@ public class EventStatusScheduler {
             }
 
             event.setStatus(EventStatus.PROCESSED);
-            event.setActive(false);
+            event.setIsActive(false);
             eventRepository.save(event);
 
             log.info("Evento '{}' marcado como processado.", event.getName());

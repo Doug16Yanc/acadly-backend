@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -29,16 +30,18 @@ public class Event {
     @Column(nullable = false, length = 1000)
     private String description;
 
-    private LocalDate initialDate;
+    private LocalDateTime initialDateTime;
 
-    private LocalDate finalDate;
+    private LocalDateTime finalDateTime;
 
     private String local;
+
+    Integer workload;
 
     @Enumerated(EnumType.STRING)
     private EventStatus status = EventStatus.UPCOMING;
 
-    private boolean isActive;
+    private Boolean isActive;
 
     @OneToMany(mappedBy = "event", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference

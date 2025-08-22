@@ -12,5 +12,4 @@ import java.util.Optional;
 public interface PersonRepository extends JpaRepository<Person, Long> {
     Page<Person> findByRole(Role role, Pageable pageable);
     Optional<Person> findByEmail(String email);
-
 }

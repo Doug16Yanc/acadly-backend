@@ -33,7 +33,7 @@ public class ActivityService {
             throw new EventNotFoundException("Evento não encontrado com o ID: " + eventId);
         }
 
-        if (activity.getDateTime().isBefore(existentEvent.getInitialDate()) || activity.getDateTime().isAfter(existentEvent.getFinalDate())) {
+        if (activity.getDateTime().isBefore(existentEvent.getInitialDateTime()) || activity.getDateTime().isAfter(existentEvent.getFinalDateTime())) {
             throw new DateConflictException("Datas inválidas para a atividade");
         }
         activity.setEvent(existentEvent);
@@ -50,7 +50,7 @@ public class ActivityService {
         var activityList = activityRepository.findAll(PageRequest.of(page, pageSize));
 
         var activities = activityList.stream()
-                .filter(activity -> activity.getEvent() != null && activity.getEvent().isActive())
+                .filter(activity -> activity.getEvent() != null && activity.getEvent().getIsActive())
                 .toList();
 
         return new PageImpl<>(activities, PageRequest.of(page, pageSize), activities.size());

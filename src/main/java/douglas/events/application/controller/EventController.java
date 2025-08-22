@@ -27,11 +27,12 @@ public class EventController {
                         newEvent.getId(),
                         newEvent.getName(),
                         newEvent.getDescription(),
-                        newEvent.getInitialDate(),
-                        newEvent.getFinalDate(),
+                        newEvent.getInitialDateTime(),
+                        newEvent.getFinalDateTime(),
                         newEvent.getLocal(),
                         newEvent.getStatus(),
-                        newEvent.isActive()
+                        newEvent.getWorkload(),
+                        newEvent.getIsActive()
                 )
         );
     }
@@ -44,11 +45,12 @@ public class EventController {
                         eventFound.getId(),
                         eventFound.getName(),
                         eventFound.getDescription(),
-                        eventFound.getInitialDate(),
-                        eventFound.getFinalDate(),
+                        eventFound.getInitialDateTime(),
+                        eventFound.getFinalDateTime(),
                         eventFound.getLocal(),
                         eventFound.getStatus(),
-                        eventFound.isActive()
+                        eventFound.getWorkload(),
+                        eventFound.getIsActive()
                 )
         );
     }
@@ -61,11 +63,12 @@ public class EventController {
                         eventFound.getId(),
                         eventFound.getName(),
                         eventFound.getDescription(),
-                        eventFound.getInitialDate(),
-                        eventFound.getFinalDate(),
+                        eventFound.getInitialDateTime(),
+                        eventFound.getFinalDateTime(),
                         eventFound.getLocal(),
                         eventFound.getStatus(),
-                        eventFound.isActive()
+                        eventFound.getWorkload(),
+                        eventFound.getIsActive()
                 )
         );
     }

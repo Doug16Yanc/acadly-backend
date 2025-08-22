@@ -4,19 +4,20 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import douglas.events.infraestructure.model.Event;
 import douglas.events.infraestructure.model.enums.EventStatus;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 public record EventResponseDTO(
         Long id,
         String name,
         String description,
-        @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd/MM/yyyy")
-        LocalDate initialDate,
-        @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd/MM/yyyy")
-        LocalDate finalDate,
+        @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd/MM/yyyy:hh:mm:ss")
+        LocalDateTime initialDateTime,
+        @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd/MM/yyyy:hh:mm:ss")
+        LocalDateTime finalDateTime,
         String local,
         EventStatus status,
-        boolean isActive
+        Integer workload,
+        Boolean isActive
 ) {
 
     public static EventResponseDTO fromEntity(Event event) {
@@ -24,11 +25,12 @@ public record EventResponseDTO(
                 event.getId(),
                 event.getName(),
                 event.getDescription(),
-                event.getInitialDate(),
-                event.getFinalDate(),
+                event.getInitialDateTime(),
+                event.getFinalDateTime(),
                 event.getLocal(),
                 event.getStatus(),
-                event.isActive()
+                event.getWorkload(),
+                event.getIsActive()
         );
     }
 
