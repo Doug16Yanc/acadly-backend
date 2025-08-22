@@ -10,9 +10,9 @@ public record EventResponseDTO(
         Long id,
         String name,
         String description,
-        @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd/MM/yyyy:hh:mm:ss")
+        @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd/MM/yyyy:HH:mm:ss")
         LocalDateTime initialDateTime,
-        @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd/MM/yyyy:hh:mm:ss")
+        @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd/MM/yyyy:HH:mm:ss")
         LocalDateTime finalDateTime,
         String local,
         EventStatus status,
