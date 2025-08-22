@@ -114,6 +114,12 @@ public class EventService {
         if (event.getInitialDateTime() != null) {
             existentEvent.setInitialDateTime(event.getInitialDateTime());
         }
+        if (event.getCoordinator() != null) {
+            existentEvent.setCoordinator(event.getCoordinator());
+        }
+        if (event.getWorkload() != null) {
+            existentEvent.setWorkload(event.getWorkload());
+        }
         if (event.getFinalDateTime() != null) {
             existentEvent.setFinalDateTime(event.getFinalDateTime());
         }
