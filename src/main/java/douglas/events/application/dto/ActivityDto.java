@@ -8,7 +8,6 @@ import java.time.LocalDateTime;
 public record ActivityDto(
         String name,
         String description,
-        @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd/MM/yyyy HH:mm:ss")
         LocalDateTime dateTime,
         Integer duration,
         String local
