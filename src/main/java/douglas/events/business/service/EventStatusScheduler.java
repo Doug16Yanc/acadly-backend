@@ -16,6 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Component
 @RequiredArgsConstructor
@@ -135,12 +136,13 @@ public class EventStatusScheduler {
             var attendees = enrollmentRepository.findByEventAndWasPresentAndCertificateIsNull(event, WasPresent.TRUE);
 
             for (Enrollment enrollment : attendees) {
-                Certificate newCertificate = new Certificate();
-                newCertificate.setEnrollment(enrollment);
-                enrollment.setCertificate(newCertificate);
-                enrollmentRepository.save(enrollment);
-
-                asyncCertificateService.generateAndSendSingleCertificate(enrollment);
+                if (enrollment.getCertificate() == null) {
+                    Certificate newCertificate = new Certificate();
+                    newCertificate.setEnrollment(enrollment);
+                    enrollment.setCertificate(newCertificate);
+                    enrollmentRepository.save(enrollment);
+                    log.info("Certificado criado para o participante ID {}.", enrollment.getParticipant().getId());
+                }
             }
 
             if (!attendees.isEmpty()) {
@@ -148,6 +150,18 @@ public class EventStatusScheduler {
                 eventRepository.save(event);
                 log.info("Geração de certificados para o evento '{}' disparada. Status atualizado.", event.getName());
             }
+        }
+    }
+
+    @Scheduled(fixedRateString = "${certificate.sending.rate:60000}", initialDelay = 30000)
+    @Transactional
+    public void sendCertificateEmails() {
+        List<Enrollment> enrollmentsWithCerts = enrollmentRepository.findWithCertificateReadyToSend();
+
+        log.info("Encontradas {} inscrições com certificados para enviar por e-mail.", enrollmentsWithCerts.size());
+
+        for (Enrollment enrollment : enrollmentsWithCerts) {
+            asyncCertificateService.generateAndSendSingleCertificate(enrollment.getId());
         }
     }
 }

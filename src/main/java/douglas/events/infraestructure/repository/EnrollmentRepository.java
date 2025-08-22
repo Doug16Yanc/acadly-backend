@@ -25,4 +25,7 @@ public interface EnrollmentRepository extends JpaRepository<Enrollment, Long> {
     List<Enrollment> findByEventAndWasPresentAndCertificateIsNull(Event event, WasPresent wasPresent);
     Optional<Enrollment> findByEventIdAndNumericCode(Long eventId, String numericCode);
     Optional<Enrollment> findByEventAndParticipant(Event event, Person participant);
+
+    @Query("SELECT e FROM Enrollment e JOIN FETCH e.participant JOIN FETCH e.certificate c WHERE c.emailSent = false")
+    List<Enrollment> findWithCertificateReadyToSend();
 }

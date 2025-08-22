@@ -25,6 +25,8 @@ public class Certificate {
     @JoinColumn(name = "enrollment_id", nullable = false)
     @JsonBackReference
     private Enrollment enrollment;
+    @Column(nullable = false)
+    private Boolean emailSent = false;
     @Column(unique = true)
     private String validationCode;
     private LocalDateTime emissionDate;

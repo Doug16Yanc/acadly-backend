@@ -9,6 +9,7 @@ import douglas.events.infraestructure.exception.local.EventNotFoundException;
 import douglas.events.infraestructure.exception.local.NotFoundException;
 import douglas.events.infraestructure.model.Activity;
 import douglas.events.infraestructure.repository.ActivityRepository;
+import jakarta.transaction.Transactional;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.*;
@@ -63,6 +64,7 @@ public class ActivityService {
                 .orElseThrow(() -> new NotFoundException("Atividade não encontrada"));
     }
 
+    @Transactional
     public Activity updateActivity(Long activityId, ActivityDto activityDto) {
         var activity = getActivityById(activityId);
 
@@ -75,7 +77,7 @@ public class ActivityService {
         if (!Objects.equals(activityDto.duration(), activity.getDuration())) {
             activity.setDuration(activityDto.duration());
         }
-        if (activity.getDateTime() != null) {
+        if (activityDto.dateTime() != null) {
             activity.setDateTime(activityDto.dateTime());
         }
         if (activityDto.local() != null) {

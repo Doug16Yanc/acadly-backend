@@ -38,6 +38,8 @@ public class Event {
 
     Integer workload;
 
+    String coordinator;
+
     @Enumerated(EnumType.STRING)
     private EventStatus status = EventStatus.UPCOMING;
 

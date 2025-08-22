@@ -31,6 +31,7 @@ public class EventController {
                         newEvent.getFinalDateTime(),
                         newEvent.getLocal(),
                         newEvent.getStatus(),
+                        newEvent.getCoordinator(),
                         newEvent.getWorkload(),
                         newEvent.getIsActive()
                 )
@@ -49,6 +50,7 @@ public class EventController {
                         eventFound.getFinalDateTime(),
                         eventFound.getLocal(),
                         eventFound.getStatus(),
+                        eventFound.getCoordinator(),
                         eventFound.getWorkload(),
                         eventFound.getIsActive()
                 )
@@ -67,6 +69,7 @@ public class EventController {
                         eventFound.getFinalDateTime(),
                         eventFound.getLocal(),
                         eventFound.getStatus(),
+                        eventFound.getCoordinator(),
                         eventFound.getWorkload(),
                         eventFound.getIsActive()
                 )

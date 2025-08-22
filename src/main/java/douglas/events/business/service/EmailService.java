@@ -41,7 +41,7 @@ public class EmailService {
 
             MimeBodyPart htmlPart = new MimeBodyPart();
             String htmlContent = "<h1>Olá, " + enrollment.getParticipant().getName() + "!</h1>"
-                    + "<h2>Sua inscrição para o evento '" + enrollment.getEvent().getName() + "' foi confirmada.</h2>"
+                    + "<h2>Sua inscrição para o evento <strong>" + enrollment.getEvent().getName() + "</strong> foi confirmada.</h2>"
                     + "<p>Apresente o QR Code abaixo na entrada do evento.</p>"
                     + "<img src='cid:" + imageContentId + "' alt='QR Code do Evento' />"
                     + "<div style='border: 1px solid #ddd; padding: 15px; margin-top: 20px; text-align: center; background-color: #f9f9f9;'>"

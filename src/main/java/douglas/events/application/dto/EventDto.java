@@ -11,6 +11,7 @@ public record EventDto(
         LocalDateTime initialDateTime,
         LocalDateTime finalDateTime,
         String local,
+        String coordinator,
         Integer workload,
         Boolean isActive
 ) {
@@ -21,6 +22,7 @@ public record EventDto(
         event.setInitialDateTime(eventDto.initialDateTime);
         event.setFinalDateTime(eventDto.finalDateTime);
         event.setLocal(eventDto.local);
+        event.setCoordinator(eventDto.coordinator);
         event.setWorkload(eventDto.workload);
         event.setIsActive(eventDto.isActive);
         return event;
@@ -33,6 +35,7 @@ public record EventDto(
                 event.getInitialDateTime(),
                 event.getFinalDateTime(),
                 event.getLocal(),
+                event.getCoordinator(),
                 event.getWorkload(),
                 event.getIsActive()
         );

@@ -1,6 +1,5 @@
 package douglas.events.application.dto.response;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import douglas.events.infraestructure.model.Event;
 import douglas.events.infraestructure.model.enums.EventStatus;
 
@@ -14,6 +13,7 @@ public record EventResponseDTO(
         LocalDateTime finalDateTime,
         String local,
         EventStatus status,
+        String coordinator,
         Integer workload,
         Boolean isActive
 ) {
@@ -27,6 +27,7 @@ public record EventResponseDTO(
                 event.getFinalDateTime(),
                 event.getLocal(),
                 event.getStatus(),
+                event.getCoordinator(),
                 event.getWorkload(),
                 event.getIsActive()
         );

@@ -35,6 +35,7 @@ public class SecurityConfig {
                                 "/v3/api-docs/**", "/swagger-ui/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/activity/**").permitAll()
                         .requestMatchers(HttpMethod.POST, "/activity/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.PUT, "/activity/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.POST, "/event/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.PUT, "/event/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.DELETE, "/event/**").hasRole("ADMIN")

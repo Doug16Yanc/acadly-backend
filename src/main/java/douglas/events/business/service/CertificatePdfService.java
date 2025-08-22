@@ -10,6 +10,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.time.format.DateTimeFormatter;
+import java.util.Locale;
 
 @Service
 public class CertificatePdfService {
@@ -27,17 +28,39 @@ public class CertificatePdfService {
                 PDAcroForm acroForm = pdfDocument.getDocumentCatalog().getAcroForm();
 
                 if (acroForm != null) {
-                    acroForm.getField("participant_name").setValue(enrollment.getParticipant().getName());
-                    acroForm.getField("event_name").setValue(enrollment.getEvent().getName());
-                    acroForm.getField("certificate_code").setValue(enrollment.getCertificate().getValidationCode());
 
-                    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
-                    String emissionDate = enrollment.getCertificate().getEmissionDate().format(formatter);
+                    Locale localeBrazil = Locale.forLanguageTag("pt-BR");
+                    DateTimeFormatter eventDateFormatter = DateTimeFormatter.ofPattern("d 'de' MMMM 'de' yyyy HH:mm", localeBrazil);
+                    String initialDate = enrollment.getEvent().getInitialDateTime().format(eventDateFormatter);
+                    String finalDate = enrollment.getEvent().getFinalDateTime().format(eventDateFormatter);
+
+                    DateTimeFormatter emissionDateFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss", localeBrazil);
+                    String emissionDate = enrollment.getCertificate().getEmissionDate().format(emissionDateFormatter) + " Boa Viagem - CE";
+
+                    String participantName = enrollment.getParticipant().getName();
+                    String eventName = enrollment.getEvent().getName();
+                    Integer workload = enrollment.getEvent().getWorkload();
+                    String coordinatorName = enrollment.getEvent().getCoordinator();
+                    String certificateCode = enrollment.getCertificate().getValidationCode();
+                    String local = enrollment.getEvent().getLocal();
+
+                    String certificateText = String.format(
+                            "Certificamos que %s participou do evento '%s', realizado no %s no período de %s a %s, com carga horária total de %d horas.",
+                            participantName,
+                            eventName,
+                            local,
+                            initialDate,
+                            finalDate,
+                            workload
+                    );
+
+                    acroForm.getField("text_template").setValue(certificateText);
+                    acroForm.getField("coordinator").setValue(coordinatorName);
+                    acroForm.getField("certificate_code").setValue(certificateCode);
                     acroForm.getField("emission_date").setValue(emissionDate);
 
                     acroForm.flatten();
                 }
-
                 ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
                 pdfDocument.save(outputStream);
                 return outputStream.toByteArray();
