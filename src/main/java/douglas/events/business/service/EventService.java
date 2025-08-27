@@ -24,25 +24,25 @@ public class EventService {
 
     @Transactional
     public Event createEvent(Event event) {
-        if (event.getFinalDate().isBefore(event.getInitialDate())) {
+        if (event.getFinalDateTime().isBefore(event.getInitialDateTime())) {
             throw new DateConflictException("A data de fim do evento não pode ser antes da sua data de início.");
         }
 
-        var latestEventOpt = eventRepository.findTopByOrderByFinalDateDesc();
+        var latestEventOpt = eventRepository.findTopByOrderByFinalDateTimeDesc();
 
         if (latestEventOpt.isPresent()) {
             Event latestEvent = latestEventOpt.get();
 
-            if (!event.getInitialDate().isAfter(latestEvent.getFinalDate())) {
+            if (!event.getInitialDateTime().isAfter(latestEvent.getFinalDateTime())) {
                 throw new DateConflictException(
-                        "A data de início do novo evento (" + event.getInitialDate().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")) +
-                                ") deve ser posterior à data de término do último evento já agendado (" + latestEvent.getFinalDate().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")) + ")."
+                        "A data e hora de início do novo evento (" + event.getInitialDateTime().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss")) +
+                                ") deve ser posterior à data e hora de término do último evento já agendado (" + latestEvent.getFinalDateTime().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss")) + ")."
                 );
             }
         }
 
-        if (event.isActive()) {
-            var activeEventOpt = eventRepository.findTopByIsActiveTrueOrderByFinalDateDesc();
+        if (event.getIsActive()) {
+            var activeEventOpt = eventRepository.findTopByIsActiveTrueOrderByFinalDateTimeDesc();
 
             if (activeEventOpt.isPresent()) {
                 throw new AlreadyActiveEventException(
@@ -55,7 +55,7 @@ public class EventService {
     }
 
     public Page<Event> getAllEvents(String query, Integer page, Integer pageSize) {
-        var pageable = PageRequest.of(page, pageSize, Sort.by("initialDate").descending());
+        var pageable = PageRequest.of(page, pageSize, Sort.by("initialDateTime").descending());
 
         if (query != null && !query.trim().isEmpty()) {
             return eventRepository.findByNameContainingIgnoreCase(query, pageable);
@@ -111,14 +111,20 @@ public class EventService {
         if (event.getLocal() != null) {
             existentEvent.setLocal(event.getLocal());
         }
-        if (event.getInitialDate() != null) {
-            existentEvent.setInitialDate(event.getInitialDate());
+        if (event.getInitialDateTime() != null) {
+            existentEvent.setInitialDateTime(event.getInitialDateTime());
         }
-        if (event.getFinalDate() != null) {
-            existentEvent.setFinalDate(event.getFinalDate());
+        if (event.getCoordinator() != null) {
+            existentEvent.setCoordinator(event.getCoordinator());
         }
-        if (event.isActive() != existentEvent.isActive()) {
-            existentEvent.setActive(event.isActive());
+        if (event.getWorkload() != null) {
+            existentEvent.setWorkload(event.getWorkload());
+        }
+        if (event.getFinalDateTime() != null) {
+            existentEvent.setFinalDateTime(event.getFinalDateTime());
+        }
+        if (event.getIsActive() != existentEvent.getIsActive()) {
+            existentEvent.setIsActive(event.getIsActive());
         }
         return eventRepository.save(existentEvent);
     }

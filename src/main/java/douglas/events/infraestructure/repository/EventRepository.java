@@ -9,22 +9,23 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
 public interface EventRepository extends JpaRepository<Event, Long> {
     boolean existsByIsActiveTrue();
     Event findEventByIsActive(boolean isActive);
-    List<Event> findByStatusAndFinalDateLessThanEqual(EventStatus status, LocalDate currentDate);
-    List<Event> findByInitialDateAfter(LocalDate currentDate);
+    List<Event> findByStatusAndFinalDateTimeLessThanEqual(EventStatus status, LocalDateTime currentDateTime);
+    List<Event> findByInitialDateTimeAfter(LocalDateTime currentDateTime);
     List<Event> findByStatus(EventStatus status);
-    Optional<Event> findTopByIsActiveTrueOrderByFinalDateDesc();
-    Optional<Event> findTopByOrderByFinalDateDesc();
+    Optional<Event> findTopByIsActiveTrueOrderByFinalDateTimeDesc();
+    Optional<Event> findTopByOrderByFinalDateTimeDesc();
     Page<Event> findByNameContainingIgnoreCase(String title, Pageable pageable);
-    List<Event> findByStatusAndInitialDateLessThanEqualAndFinalDateGreaterThanEqual(
+    List<Event> findByStatusAndInitialDateTimeLessThanEqualAndFinalDateTimeGreaterThanEqual(
             EventStatus status,
-            LocalDate initialDate,
-            LocalDate finalDate
+            LocalDateTime initialDateTime,
+            LocalDateTime finalDateTime
     );
 
     @Query(

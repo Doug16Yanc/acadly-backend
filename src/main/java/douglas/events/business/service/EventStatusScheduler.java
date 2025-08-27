@@ -15,6 +15,8 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.List;
 
 @Component
 @RequiredArgsConstructor
@@ -25,12 +27,12 @@ public class EventStatusScheduler {
     private final EnrollmentRepository enrollmentRepository;
     private final AsyncCertificateService asyncCertificateService;
 
-    @Scheduled(fixedRateString = "${event.processing.rate:60000}")
+    @Scheduled(fixedRateString = "${event.processing.rate:60000}", initialDelay = 30000)
     @Transactional
     public void processUpcomingEvents() {
         log.info("Executando verificação de eventos para lançar...");
 
-        var eventsToUpcoming = eventRepository.findByInitialDateAfter(LocalDate.now());
+        var eventsToUpcoming = eventRepository.findByInitialDateTimeAfter(LocalDateTime.now());
 
         if (eventsToUpcoming.isEmpty()) {
             log.info("Nenhum evento novo para lançar.");
@@ -43,7 +45,7 @@ public class EventStatusScheduler {
             if (event.getStatus() != EventStatus.UPCOMING) {
                 log.info("Lançando evento: {}", event.getName());
                 event.setStatus(EventStatus.UPCOMING);
-                event.setActive(false);
+                event.setIsActive(false);
                 eventRepository.save(event);
                 return;
             }
@@ -51,14 +53,14 @@ public class EventStatusScheduler {
         }
     }
 
-    @Scheduled(fixedRateString = "${event.processing.rate:60000}")
+    @Scheduled(fixedRateString = "${event.processing.rate:60000}", initialDelay = 30000)
     @Transactional
     public void processStartEvents() {
         log.info("Executando verificação de eventos para iniciar...");
-        LocalDate now = LocalDate.now();
+        LocalDateTime now = LocalDateTime.now();
 
         var eventsToStart = eventRepository
-                .findByStatusAndInitialDateLessThanEqualAndFinalDateGreaterThanEqual(
+                .findByStatusAndInitialDateTimeLessThanEqualAndFinalDateTimeGreaterThanEqual(
                 EventStatus.UPCOMING, now, now
         );
 
@@ -69,7 +71,7 @@ public class EventStatusScheduler {
 
         for (Event event : eventsToStart) {
             log.info("Verificando se o evento está ativo: {}", event.getName());
-            if (event.isActive()) {
+            if (event.getIsActive()) {
                 log.info("Iniciando evento: {}", event.getName());
                 event.setStatus(EventStatus.STARTED);
                 eventRepository.save(event);
@@ -81,12 +83,12 @@ public class EventStatusScheduler {
     }
 
 
-    @Scheduled(fixedRateString = "${event.processing.rate:60000}")
+    @Scheduled(fixedRateString = "${event.processing.rate:60000}", initialDelay = 30000)
     @Transactional
     public void processFinishedEvents() {
         log.info("Executando verificação de eventos finalizados...");
 
-        var finishedEvents = eventRepository.findByStatusAndFinalDateLessThanEqual(EventStatus.STARTED, LocalDate.now());
+        var finishedEvents = eventRepository.findByStatusAndFinalDateTimeLessThanEqual(EventStatus.STARTED, LocalDateTime.now());
 
         if (finishedEvents.isEmpty()) {
             log.info("Nenhum evento finalizado para processar.");
@@ -107,14 +109,14 @@ public class EventStatusScheduler {
             }
 
             event.setStatus(EventStatus.PROCESSED);
-            event.setActive(false);
+            event.setIsActive(false);
             eventRepository.save(event);
 
             log.info("Evento '{}' marcado como processado.", event.getName());
         }
     }
 
-    @Scheduled(fixedRateString = "${certificate.processing.rate:60000}")
+    @Scheduled(fixedRateString = "${certificate.processing.rate:60000}", initialDelay = 30000)
     @Transactional
     public void generateAndSendCertificates() {
         var eventsReadyForCerts = eventRepository.findByStatus(EventStatus.PROCESSED);
@@ -134,12 +136,13 @@ public class EventStatusScheduler {
             var attendees = enrollmentRepository.findByEventAndWasPresentAndCertificateIsNull(event, WasPresent.TRUE);
 
             for (Enrollment enrollment : attendees) {
-                Certificate newCertificate = new Certificate();
-                newCertificate.setEnrollment(enrollment);
-                enrollment.setCertificate(newCertificate);
-                enrollmentRepository.save(enrollment);
-
-                asyncCertificateService.generateAndSendSingleCertificate(enrollment);
+                if (enrollment.getCertificate() == null) {
+                    Certificate newCertificate = new Certificate();
+                    newCertificate.setEnrollment(enrollment);
+                    enrollment.setCertificate(newCertificate);
+                    enrollmentRepository.save(enrollment);
+                    log.info("Certificado criado para o participante ID {}.", enrollment.getParticipant().getId());
+                }
             }
 
             if (!attendees.isEmpty()) {
@@ -147,6 +150,18 @@ public class EventStatusScheduler {
                 eventRepository.save(event);
                 log.info("Geração de certificados para o evento '{}' disparada. Status atualizado.", event.getName());
             }
+        }
+    }
+
+    @Scheduled(fixedRateString = "${certificate.sending.rate:60000}", initialDelay = 60000)
+    @Transactional
+    public void sendCertificateEmails() {
+        List<Enrollment> enrollmentsWithCerts = enrollmentRepository.findWithCertificateReadyToSend();
+
+        log.info("Encontradas {} inscrições com certificados para enviar por e-mail.", enrollmentsWithCerts.size());
+
+        for (Enrollment enrollment : enrollmentsWithCerts) {
+            asyncCertificateService.generateAndSendSingleCertificate(enrollment.getId());
         }
     }
 }

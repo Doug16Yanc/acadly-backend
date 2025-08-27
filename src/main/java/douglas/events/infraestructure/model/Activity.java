@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "activities")
@@ -19,20 +20,14 @@ public class Activity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "event_id", nullable = false)
     @JsonBackReference
     private Event event;
-
     @Column(nullable = false)
     private String name;
-
     private String description;
-
-    private LocalDate dateTime;
-
+    private LocalDateTime dateTime;
     private Integer duration;
-
     private String local;
 }

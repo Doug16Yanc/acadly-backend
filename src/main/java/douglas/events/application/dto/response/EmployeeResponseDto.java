@@ -9,8 +9,6 @@ public record EmployeeResponseDto(
     Long id,
     String name,
     String email,
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd/MM/yyyy")
-
     LocalDateTime createdAt
 ) {
     public static EmployeeResponseDto fromEntity(Person person) {
