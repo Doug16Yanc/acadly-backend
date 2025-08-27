@@ -27,7 +27,7 @@ public class EventStatusScheduler {
     private final EnrollmentRepository enrollmentRepository;
     private final AsyncCertificateService asyncCertificateService;
 
-    @Scheduled(fixedRateString = "${event.processing.rate:60000}")
+    @Scheduled(fixedRateString = "${event.processing.rate:60000}", initialDelay = 30000)
     @Transactional
     public void processUpcomingEvents() {
         log.info("Executando verificação de eventos para lançar...");
@@ -53,7 +53,7 @@ public class EventStatusScheduler {
         }
     }
 
-    @Scheduled(fixedRateString = "${event.processing.rate:60000}")
+    @Scheduled(fixedRateString = "${event.processing.rate:60000}", initialDelay = 30000)
     @Transactional
     public void processStartEvents() {
         log.info("Executando verificação de eventos para iniciar...");
@@ -83,7 +83,7 @@ public class EventStatusScheduler {
     }
 
 
-    @Scheduled(fixedRateString = "${event.processing.rate:60000}")
+    @Scheduled(fixedRateString = "${event.processing.rate:60000}", initialDelay = 30000)
     @Transactional
     public void processFinishedEvents() {
         log.info("Executando verificação de eventos finalizados...");
@@ -116,7 +116,7 @@ public class EventStatusScheduler {
         }
     }
 
-    @Scheduled(fixedRateString = "${certificate.processing.rate:60000}")
+    @Scheduled(fixedRateString = "${certificate.processing.rate:60000}", initialDelay = 30000)
     @Transactional
     public void generateAndSendCertificates() {
         var eventsReadyForCerts = eventRepository.findByStatus(EventStatus.PROCESSED);
@@ -153,7 +153,7 @@ public class EventStatusScheduler {
         }
     }
 
-    @Scheduled(fixedRateString = "${certificate.sending.rate:60000}", initialDelay = 30000)
+    @Scheduled(fixedRateString = "${certificate.sending.rate:60000}", initialDelay = 60000)
     @Transactional
     public void sendCertificateEmails() {
         List<Enrollment> enrollmentsWithCerts = enrollmentRepository.findWithCertificateReadyToSend();

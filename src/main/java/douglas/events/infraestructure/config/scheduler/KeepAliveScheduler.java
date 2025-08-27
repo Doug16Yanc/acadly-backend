@@ -12,7 +12,7 @@ public class KeepAliveScheduler {
     private static final Logger log = LoggerFactory.getLogger(KeepAliveScheduler.class);
     private final RestTemplate restTemplate = new RestTemplate();
 
-    @Scheduled(fixedRate = 100000)
+    @Scheduled(fixedRate = 100000, initialDelay = 30000)
     public void pingSelf() {
         log.info("Rodando o scheduler: enviando ping para manter o serviço ativo...");
         
