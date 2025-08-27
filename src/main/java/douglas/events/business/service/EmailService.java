@@ -2,14 +2,7 @@ package douglas.events.business.service;
 
 import douglas.events.business.service.dto.QrCodeData;
 import douglas.events.infraestructure.model.Enrollment;
-import jakarta.activation.DataHandler;
-import jakarta.mail.Message;
-import jakarta.mail.Multipart;
-import jakarta.mail.internet.InternetAddress;
-import jakarta.mail.internet.MimeBodyPart;
 import jakarta.mail.internet.MimeMessage;
-import jakarta.mail.internet.MimeMultipart;
-import jakarta.mail.util.ByteArrayDataSource;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.mail.javamail.JavaMailSender;
