@@ -23,12 +23,12 @@ public class ApiController {
                                 new Collaborator(
                                         "Douglas Holanda",
                                         "douglasholanda3195@gmail.com",
-                                        "Doug16Yanc"
+                                        "https://github.com/Doug16Yanc"
                                 ),
                                 new Collaborator(
                                         "Wesley Sousa",
                                         "wesley300rodrigues@gmail.com",
-                                        "Wesley00s"
+                                        "https://github.com/Wesley00s"
                                 )
                         )
                 )
